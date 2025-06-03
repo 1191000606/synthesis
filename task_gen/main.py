@@ -5,6 +5,9 @@ from prompt import get_joint_angle_prompt, get_spatial_relationship_prompt, get_
 from llm import llm_generate
 from parse import parse_joint_angle_response, parse_response_to_get_yaml, parse_spatial_relationship_response, parse_task_response
 
+# 对于需要的配置信息，可以写到一个配置文件中
+# 需要仔细思考每个配置文件是否需要写。对于几乎不会修改的配置，就不用写到配置文件里面
+
 with open("./data/partnet_category.txt", "r") as f:
     partnet_category_list = [line.strip() for line in f.readlines()]
 
@@ -23,7 +26,7 @@ with open(f"{object_path}/link_and_joint.txt", 'r') as f:
 with open(f"{object_path}/semantics.txt", "r") as f:
     semantics = f.readlines()
 
-task_gen_prompt = get_task_gen_prompt(object_category, "".join(articulation_tree), "".join(semantics))
+task_gen_prompt = get_task_gen_prompt(object_category, articulation_tree, semantics)
 
 llm_response = llm_generate(task_gen_prompt)
 
@@ -54,3 +57,9 @@ for task_name, task_description, additional_object, link, joint in zip(task_name
     response = llm_generate(spatial_relationships_prompt)
 
     spatial_relationships = parse_spatial_relationship_response()
+
+    # Todo: 后面还需要补充distractor的生成
+
+    # 中间不要有太多的额外的代码，最后再一起把生成的yaml写到文件里面
+
+# Todo: 大模型生成相关的内容写到llm.py里面，凡是与具体任务无关的配置，其实都应该写到llm.py里面

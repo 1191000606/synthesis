@@ -96,10 +96,10 @@ Joints:
 
 Can you do the same for the following object:
 ```{object_category} articulation tree
-{articulation_tree}
+{"".join(articulation_tree)}
 ```
 
 ```{object_category} semantics
-{semantics}
+{"".join(semantics)}
 ```
 """
