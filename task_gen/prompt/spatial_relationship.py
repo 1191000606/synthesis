@@ -1,4 +1,4 @@
-def get_spatial_relationship_prompt(task_name, task_description, involved_objects, articulation_tree, semantics, links, joints, substeps):
+def get_spatial_relationship_prompt(task_name, task_description, involved_objects, articulation_tree, semantics, links, joints):
     return f"""
 Your goal is to output any special spatial relationships certain objects should have in the initial state, given a task. The task is for a robot arm to learn the corresponding skills in household scenarios.  
 
@@ -159,6 +159,4 @@ Links:
 Joints:
 {joints}
 
-substeps:
-{"".join(substeps)}
 """

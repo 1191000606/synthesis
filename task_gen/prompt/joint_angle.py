@@ -1,4 +1,4 @@
-def get_joint_angle_prompt(task_name, task_description, articulation_tree, semantics, links, joints, substeps):
+def get_joint_angle_prompt(task_name, task_description, articulation_tree, semantics, links, joints):
     return f"""
 Your goal is to set the  joint angles of some articulated objects to the right value in the initial state, given a task. The task is for a robot arm to learn the corresponding skills to manipulate the articulated object. 
 
@@ -196,6 +196,4 @@ Links:
 Joints:
 {joints}
 
-substeps:
-{"".join(substeps)}
 """

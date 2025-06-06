@@ -102,4 +102,10 @@ Can you do the same for the following object:
 ```{object_category} semantics
 {"".join(semantics)}
 ```
+
+Do not apply bold formatting to any text; in other words, do not include ** in your answer.
+
+Please follow the format of the sample above when answering so that I can parse your response.
+
+
 """

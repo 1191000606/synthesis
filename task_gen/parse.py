@@ -1,3 +1,10 @@
+from llm import llm_generate,MODEL_NAME, TEMP
+from manipulation.utils import parse_center
+import yaml
+import re
+from prompt.prompt_with_scale import user_contents_v2 as scale_user_contents_v2, assistant_contents_v2 as scale_assistant_contents_v2
+import copy
+
 def parse_task_response(task_response):
     task_names = []
     task_descriptions = []
@@ -36,8 +43,11 @@ def parse_task_response(task_response):
 
     return task_names, task_descriptions, additional_objects, links, joints
 
-def parse_response_to_get_yaml(response, task_description, save_path, temperature=0.2, model='gpt-4'):
+def parse_response_to_get_yaml(response, task_description):
     yaml_string = []
+    if isinstance(response, str):
+        response = response.splitlines()
+
     for l_idx, line in enumerate(response):
         if "```yaml" in line:
             for l_idx_2 in range(l_idx + 1, len(response)):
@@ -50,17 +60,17 @@ def parse_response_to_get_yaml(response, task_description, save_path, temperatur
             description = f"{task_description}".replace(" ", "_").replace(".", "").replace(",", "").replace("(", "").replace(")", "")
             save_name =  description + '.yaml'
 
-            print("=" * 30)
-            print("querying GPT to adjust the size of the objects")
-            print("=" * 30)
-            parsed_size_yaml = adjust_size_v2(description, yaml_string, save_path, temperature, model=model)
+            # print("=" * 30)
+            # print("querying GPT to adjust the size of the objects")
+            # print("=" * 30)
+            parsed_size_yaml = adjust_size_v2(description, yaml_string)
 
             return parsed_size_yaml, save_name
 
 
-def adjust_size_v2(task_description, yaml_string, save_path, temperature=0.2, model="gpt-4"):
+def adjust_size_v2(task_description, yaml_string):
     # extract object names and sizes
-    object_names = []
+    object_names = [] 
     object_sizes = []
     object_types = []
 
@@ -94,10 +104,11 @@ def adjust_size_v2(task_description, yaml_string, save_path, temperature=0.2, mo
     new_user_contents += "```"
     input_user = copy.deepcopy(scale_user_contents_v2)
     input_user.append(new_user_contents)
-
-    system = "You are a helpful assistant."
-    response = query(system, input_user, scale_assistant_contents_v2, save_path=save_path, debug=False, temperature=temperature, model=model)
-
+    
+    # 改为调用llm_generate函数，实现和query相同的效果
+    response = llm_generate(input_user,scale_assistant_contents_v2)
+                            
+                            
     response = response.split("\n")
 
     corrected_names = []

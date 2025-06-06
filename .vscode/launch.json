@@ -1,0 +1,38 @@
+{
+  // 调试配置文件版本，保持固定即可
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // 出现在调试面板里的显示名称
+      "name": "Python: 当前文件 (synthesis)",
+
+      // 调试器类型
+      "type": "python",
+
+      // 启动调试（launch）还是附加到已有进程（attach）
+      "request": "launch",
+
+      // 要运行的程序；这里取 VS Code 当前焦点文件
+      "program": "${file}",
+
+      // 工作目录，通常设为工作区根
+      "cwd": "${workspaceFolder}",
+
+      /* ======== 关键：指定解释器 ======== */
+      // 方法一：写死绝对路径（最稳妥）
+      "python": "/home/szwang/anaconda3/envs/synthesis/bin/python",
+
+      // 方法二（可选）：改用 VS Code 选中的解释器
+      // 取消上面 "python" 行，并加上
+      // "python": "${command:python.interpreterPath}",
+
+      /* ================================= */
+
+      // 只调试自己写的代码，库代码不单步
+      "justMyCode": true,
+
+      // 调试终端：integratedTerminal / externalTerminal / none
+      "console": "integratedTerminal"
+    }
+  ]
+}
