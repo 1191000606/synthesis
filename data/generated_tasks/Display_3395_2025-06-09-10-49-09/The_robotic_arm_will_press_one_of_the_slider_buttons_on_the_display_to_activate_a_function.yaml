@@ -1,0 +1,19 @@
+-   use_table: true
+-   center: (0.5, 0.5, 0)
+    lang: a common display with buttons
+    name: Display
+    on_table: true
+    path: display.urdf
+    reward_asset_path: ../RoboGen/data/dataset/3395
+    size: 0.4
+    type: urdf
+-   joint_0: random
+    joint_1: '0'
+    joint_2: '0'
+    joint_3: '0'
+    set_joint_angle_object_name: Display
+-   spatial_relationships: []
+-   task_description: The robotic arm will press one of the slider buttons on the
+        display to activate a function.
+    task_name: Press Display Button
+-   distractor_config_path: data/generated_tasks/Display_3395_2025-06-09-10-49-09/The_robotic_arm_will_press_one_of_the_slider_buttons_on_the_display_to_activate_a_function_distractor.yaml

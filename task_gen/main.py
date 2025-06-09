@@ -2,6 +2,7 @@ import json
 import random
 import yaml
 import os
+import time,datetime
 # from prompt import get_joint_angle_prompt, get_spatial_relationship_prompt, get_task_gen_prompt, get_scene_gen_prompt
 from prompt.joint_angle import get_joint_angle_prompt
 from prompt.spatial_relationship import get_spatial_relationship_prompt
@@ -9,6 +10,8 @@ from prompt.task_gen import get_task_gen_prompt
 from prompt.scene_gen import get_scene_gen_prompt
 from llm import llm_generate,MODEL_NAME, TEMP
 from parse import parse_joint_angle_response, parse_response_to_get_yaml, parse_spatial_relationship_response, parse_task_response
+from prompt.prompt_distractor import generate_distractor
+
 
 # 对于需要的配置信息，可以写到一个配置文件中
 # 需要仔细思考每个配置文件是否需要写。对于几乎不会修改的配置，就不用写到配置文件里面
@@ -90,14 +93,32 @@ for task_name, task_description, additional_object, link, joint in zip(task_name
     spatial_relationships = parse_spatial_relationship_response(response)#
     
     
-    # parsed_yaml.append(dict(solution_path=solution_path)) 这个还没搞
+    # parsed_yaml.append(dict(solution_path=solution_path)) 这个还没搞，其实就是本yaml文件的路径,好像也没用
     
     parsed_yaml.append(joint_angle_values)
     parsed_yaml.append(dict(spatial_relationships=spatial_relationships))
     parsed_yaml.append(dict(task_name=task_name, task_description=task_description))
+    ts = time.time()
+    time_string = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S')
+    meta_path="generated_tasks"
+    # save_folder = "data/{}/{}_{}_{}".format(meta_path, object_category, object_path, time_string)
+    save_folder = "data/{}/{}_{}_{}".format(meta_path, object_category, object_id, time_string)
+    
+    
+    config_path = os.path.join(save_folder, save_name)
+    os.makedirs(os.path.dirname(config_path), exist_ok=True)
+
+    with open(config_path, 'w') as f:
+        yaml.dump(parsed_yaml, f, indent=4)
+    
+    
+    
+    
+    
     
     print("Config:")###
     print(parsed_yaml)###
+    generate_distractor(config_path)
     
 
     # Todo: 后面还需要补充distractor的生成
