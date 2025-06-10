@@ -1,5 +1,5 @@
 import json
-from llm import llm_generate,MODEL_NAME, TEMP
+from llm import llm_generate
 import os
 import copy
 import yaml
@@ -92,8 +92,7 @@ assistant_contents = [
 
 def generate_distractor(task_config):
     parent_folder = os.path.dirname(task_config)
-    
-    existing_response = os.path.join(parent_folder, "gpt_response/task_generation.json")
+
     
     ori_config = None
     with open(task_config, 'r') as f:
@@ -159,7 +158,8 @@ Initial config:
         parsed_yaml, _ = parse_response_to_get_yaml(response, task_description)
 
         # some post processing: if the object is close enough to sapian object, we retrieve it from partnet mobility
-        sapian_obj_embeddings = torch.load("../RoboGen/objaverse_utils/data/partnet_mobility_category_embeddings.pt", weights_only=False)
+        # sapian_obj_embeddings = torch.load("../RoboGen/objaverse_utils/data/partnet_mobility_category_embeddings.pt", weights_only=False)
+        sapian_obj_embeddings = torch.load("data/partnet_mobility_category_embeddings.pt", weights_only=False)
         sapian_object_dict = None
         with open("data/partnet_mobility_dict.json", 'r') as f:
             sapian_object_dict = json.load(f)

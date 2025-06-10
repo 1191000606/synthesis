@@ -1,0 +1,17 @@
+-   use_table: true
+-   center: (0.5, 0.5, 0)
+    lang: a common wall clock
+    name: Clock
+    on_table: true
+    path: clock.urdf
+    reward_asset_path: data/dataset/6797
+    size: 0.25
+    type: urdf
+-   joint_0: random
+    joint_1: random
+    set_joint_angle_object_name: Clock
+-   spatial_relationships: []
+-   task_description: The robotic arm will adjust one of the clock hands to set an
+        alarm time (assuming one hand functions as an alarm indicator).
+    task_name: Set Alarm Time
+-   distractor_config_path: data/generated_tasks_release/Clock_6797_2025-06-10-19-24-31/The_robotic_arm_will_adjust_one_of_the_clock_hands_to_set_an_alarm_time_assuming_one_hand_functions_as_an_alarm_indicator_distractor.yaml

@@ -1,0 +1,36 @@
+-   center: (0.8, 0.2, 0)
+    lang: a standard desk lamp with an adjustable arm
+    name: Desk Lamp
+    on_table: true
+    path: desk_lamp.obj
+    size: 0.3
+    type: mesh
+-   center: (0.2, 0.8, 0)
+    lang: a spiral-bound notebook with a colorful cover
+    name: Notebook
+    on_table: true
+    path: notebook.obj
+    size: 0.28
+    type: mesh
+-   center: (0.25, 0.75, 0)
+    lang: a standard ballpoint pen
+    name: Pen
+    on_table: true
+    path: pen.obj
+    reward_asset_path: '102916'
+    size: 0.15
+    type: urdf
+-   center: (0.7, 0.7, 0)
+    lang: a ceramic coffee mug with a handle
+    name: Coffee Mug
+    on_table: true
+    path: coffee_mug.obj
+    size: 0.13
+    type: mesh
+-   center: (2.0, 0.0, 0)
+    lang: a wooden bookshelf with multiple shelves
+    name: Bookshelf
+    on_table: false
+    path: bookshelf.obj
+    size: 1.5
+    type: mesh

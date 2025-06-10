@@ -39,11 +39,6 @@ Links:
 Joints:
 - joint_0: Joint_0 is the revolute joint connecting link_0 (the door) as per the articulation tree. The robot needs to actuate this joint cautiously to ensure the door is closed.
 
-substeps:
-approach the door	
-close the door
-
-
 Output:
 The goal is for the robot arm to learn to close the door after it is opened. Therefore, the door needs to be initially opened, thus, we are setting its value to 1, which corresponds to the upper joint limit. 
 ```joint values
@@ -74,10 +69,6 @@ Links:
 - link_0: link_0 is the door. This is the part of the door assembly that the robot needs to interact with.
 Joints:
 - joint_0: Joint_0 is the revolute joint connecting link_0 (the door) as per the articulation tree. The robot needs to actuate this joint cautiously to ensure the door is closed.
-
-substeps:
-grasp the faucet switch
-turn off the faucet
 
 Output:
 For the robot to learn to turn off the faucet, it cannot be already off initially. Therefore, joint_1 should be set to its upper joint limit, or any value that is more than half of the joint range, e.g., 0.8.
@@ -112,16 +103,6 @@ Links:
 - link_2: link_2 is the drawer link from the semantics. The robot needs to open this drawer to place the item inside. 
 Joints: 
 - joint_2: joint_2, from the articulation tree, connects to link_2 (the drawer). Thus, the robot would need to actuate this joint to open the drawer to store the item.
-
-substeps:
- grasp the drawer
- open the drawer
- grasp the item
- put the item into the drawer
- grasp the drawer again
- close the drawer
- release the grasp
-
 
 Output:
 This task involves putting one item into the drawer of the storage furniture. As noted in the substeps, the robot needs to first open the drawer, put the item in, and then close it. Since the articulated object is initialized with the lower joint limit, i.e., the drawer is initially closed, it aligns with the task where the robot needs to first learn to open the drawer. Therefore, no particular joint angle needs to be set, and we just output None. 
@@ -165,14 +146,6 @@ link_0 and link_1: These two links are necessary to direct the lamp light toward
 
 Joints:
 joint_0 and joint_1: These joints connect the rotation bar and the lamp head. By actuating both these joints, the robot can direct the light at a desired location.
-
-substeps:
- grasp the first rotation bar
- rotate the first rotation bar to aim the lamp
- release the first rotation bar
- grasp the lamp head
- rotate the lamp head to aim the lamp
- release the lamp head
 
 Output:
 The task involves directing the lamp light at a specific area. The robot needs to learn to manipulate both the rotation bar and the lamp head to achieve this. Therefore, we need to set the initial joint angles such that the lamp is not already directed at the desired area. We can set both joint_0 and joint_1 to be randomly sampled.

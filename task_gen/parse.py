@@ -1,5 +1,4 @@
-from llm import llm_generate,MODEL_NAME, TEMP
-from manipulation.utils import parse_center
+from llm import llm_generate
 import yaml
 import re
 from prompt.prompt_with_scale import user_contents_v2 as scale_user_contents_v2, assistant_contents_v2 as scale_assistant_contents_v2
@@ -66,6 +65,14 @@ def parse_response_to_get_yaml(response, task_description):
             parsed_size_yaml = adjust_size_v2(description, yaml_string)
 
             return parsed_size_yaml, save_name
+
+def parse_center(center):   
+    if center.startswith("(") or center.startswith("["):
+        center = center[1:-1]
+
+    center = center.split(",")
+    center = [float(x) for x in center]
+    return np.array(center)
 
 
 def adjust_size_v2(task_description, yaml_string):
