@@ -7,7 +7,7 @@
       "name": "Python: 当前文件 (synthesis)",
 
       // 调试器类型
-      "type": "python",
+      "type": "debugpy",
 
       // 启动调试（launch）还是附加到已有进程（attach）
       "request": "launch",
@@ -16,15 +16,15 @@
       "program": "${file}",
 
       // 工作目录，通常设为工作区根
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/task_gen/",
 
       /* ======== 关键：指定解释器 ======== */
       // 方法一：写死绝对路径（最稳妥）
-      "python": "/home/szwang/anaconda3/envs/synthesis/bin/python",
+      // "python": "/home/szwang/anaconda3/envs/synthesis/bin/python",
 
       // 方法二（可选）：改用 VS Code 选中的解释器
       // 取消上面 "python" 行，并加上
-      // "python": "${command:python.interpreterPath}",
+      "python": "${command:python.interpreterPath}",
 
       /* ================================= */
 

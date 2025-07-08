@@ -1,13 +1,14 @@
-def get_spatial_relationship_prompt(task_name, task_description, involved_objects, articulation_tree, semantics, links, joints):
-    return f"""
-Your goal is to output any special spatial relationships certain objects should have in the initial state, given a task. The task is for a robot arm to learn the corresponding skills in household scenarios.  
+def get_spatial_relationship_prompt(task_attr):
+    # Todo: links和joints前面有一个“- ”，目前没有这个。
+    # Todo: links中有两个的时候，应该是“- link_1: xxx\n- link_3: xxx”，目前有个样例不是这样
 
-The input to you will include 
-the task name, 
-a short description of the task, 
-objects involved in the task, 
-substeps for performing the task,
-If there is an articulated object involved in the task, the articulation tree of the articulated object, the semantic file of the articulated object, and the links and joints of the articulated objects that will be involved in the task. 
+    involved_objects = task_attr["object_category"]
+    if task_attr["additional_object"] != "None":
+        involved_objects += ", " + task_attr["additional_object"]
+
+    return f"""Your goal is to output any special spatial relationships certain objects should have in the initial state, given a task. The task is for a robot arm to learn the corresponding skills in household scenarios.  
+
+The input to you will include the task name, a short description of the task, objects involved in the task. If there is an articulated object involved in the task, the articulation tree of the articulated object, the semantic file of the articulated object, and the links and joints of the articulated objects that will be involved in the task. 
 
 We have the following spatial relationships:
 on, obj_A, obj_B: object A is on top of object B, e.g., a fork on the table.
@@ -19,7 +20,7 @@ Given the input to you, you should output any needed spatial relationships of th
 Here are some examples:
 
 Input:
-Task Name:Fetch Item from Refrigerator 
+Task name: Fetch Item from Refrigerator 
 Description: The robotic arm will open a refrigerator door and reach inside to grab an item and then close the door.
 Objects involved: refrigerator, item
 
@@ -44,27 +45,20 @@ link_2 hinge door
 
 Links:
 link_1: The robot needs to approach and open this link, which represents one of the refrigerator doors, to reach for the item inside.
+
 Joints:
 joint_1: This joint connects link_1, representing one of the doors. The robot needs to actuate this joint to open the door, reach for the item, and close the door. 
 
-
-substeps:
- grasp the refrigerator door
- open the refrigerator door
- grasp the item
- move the item out of the refrigerator
- grasp the refrigerator door again
- close the refrigerator door
-
-
 Output:
 The goal is for the robot arm to learn to retrieve an item from the refrigerator. Therefore, the item needs to be initially inside the refrigerator. From the refrigerator semantics we know that link_0 is the body of the refrigerator, therefore we should have a spatial relationship as the following:
+
 ```spatial relationship
 In, item, refrigerator, link_0
 ```
 
+
 Another example:
-Task Name: Turn Off Faucet
+Task name: Turn Off Faucet
 Description: The robotic arm will turn the faucet off by manipulating the switch
 Objects involved: faucet
 
@@ -85,22 +79,21 @@ link_1 hinge switch
 ```
 
 Links: 
-link_0: link_0 is the door. This is the part of the door assembly that the robot needs to interact with.
-Joints:
-joint_0: Joint_0 is the revolute joint connecting link_0 (the door) as per the articulation tree. The robot needs to actuate this joint cautiously to ensure the door is closed.
+link_1: link_1 is the switch of the faucet. The robot needs to interact with this part to turn the faucet off.
 
-substeps:
-grasp the faucet switch
-turn off the faucet
+Joints:
+joint_1: Joint_1 is the revolute joint connecting link_1 (the switch) as per the articulation tree. The robot needs to actuate this joint to turn the faucet off.
 
 Output:
 There is only 1 object involved in the task, thus no special spatial relationships are required.
+
 ```spatial relationship
 None
 ```
 
+
 One more example:
-Task Name: Store an item inside the Drawer
+Task name: Store an item inside the Drawer
 Description: The robot arm picks up an item and places it inside the drawer of the storage furniture.
 Objects involved: storage furniture, item
 
@@ -125,38 +118,33 @@ link_2 slider drawer
 
 Links:
 link_2: link_2 is the drawer link from the semantics. The robot needs to open this drawer to place the item inside. 
+
 Joints: 
 joint_2: joint_2, from the articulation tree, connects to link_2 (the drawer). Thus, the robot would need to actuate this joint to open the drawer to store the item.
 
-substeps:
- grasp the drawer
- open the drawer
- grasp the item
- put the item into the drawer
- grasp the drawer again
- close the drawer
- release the grasp
-
-
 Output:
 This task involves putting one item into the drawer of the storage furniture. The item should initially be outside of the drawer, such that the robot can learn to put it into the drawer. Therefore, no special relationships of in or on are needed. Therefore, no special spatial relationships are needed.
+
 ```spatial relationship
 None
 ```
 
 Can you do it for the following task: 
-Task Name: {task_name}
-Description: {task_description}
+Task name: {task_attr["task_name"]}
+Description: {task_attr["task_description"]}
 Objects involved: {involved_objects}
 
-{articulation_tree}
+```{task_attr["object_category"]} articulation tree
+{task_attr["articulation_tree"]}
+```
 
-{semantics}
+```{task_attr["object_category"]} semantics
+{task_attr["semantics"]}
+```
 
 Links:
-{links}
+{task_attr["links"]}
 
 Joints:
-{joints}
-
+{task_attr["joints"]}
 """
