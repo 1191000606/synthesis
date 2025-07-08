@@ -1,1 +1,4 @@
 data/dataset/
+.vscode/
+.idea/
+xml_process/
