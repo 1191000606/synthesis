@@ -43,11 +43,10 @@ def match_similar_object_from_partnet(distractor_config):
     global partnet_ids_dict
     global sentence_bert_model
 
-    import torch
     from sentence_transformers import SentenceTransformer, util
 
-    if partnet_category_embeddings is None: # Todo: 查一下这个编码的次序是否符合partnet_category.txt的顺序
-        partnet_category_embeddings = torch.load("../data/partnet_mobility_category_embeddings.pt", weights_only=False)
+    if partnet_category_embeddings is None:
+        partnet_category_embeddings = np.load("../data/partnet_category_embeddings.npy")
     
     if partnet_category_list is None:
         with open("../data/partnet_category.txt", "r") as f:
@@ -58,19 +57,13 @@ def match_similar_object_from_partnet(distractor_config):
             partnet_ids_dict = json.load(f)
 
     if sentence_bert_model is None:
-        sentence_bert_model = SentenceTransformer('all-mpnet-base-v2')
-        
-        if torch.cuda.is_available():    
-            sentence_bert_model.to(device="cuda")
-        else:
-            sentence_bert_model.to(device="cpu")
-            print("Using CPU for SentenceTransformer model, which may be slower.")
+        sentence_bert_model = SentenceTransformer('all-mpnet-base-v2') # 自动根据cuda是否可用选择设备
 
     for obj in distractor_config:
         obj_name_embeddings = sentence_bert_model.encode(obj['name'])
         similarity = util.cos_sim(obj_name_embeddings, partnet_category_embeddings).cpu().numpy()
         
-        if np.max(similarity) > 0.95:
+        if np.max(similarity) > 0.85: # 0.95是不是太高了？
             best_category = partnet_category_list[np.argmax(similarity)]
             obj['type'] = 'urdf'
             obj['name'] = best_category

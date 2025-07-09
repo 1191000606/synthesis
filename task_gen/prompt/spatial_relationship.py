@@ -1,7 +1,4 @@
 def get_spatial_relationship_prompt(task_attr):
-    # Todo: links和joints前面有一个“- ”，目前没有这个。
-    # Todo: links中有两个的时候，应该是“- link_1: xxx\n- link_3: xxx”，目前有个样例不是这样
-
     involved_objects = task_attr["object_category"]
     if task_attr["additional_object"] != "None":
         involved_objects += ", " + task_attr["additional_object"]
@@ -44,10 +41,10 @@ link_2 hinge door
 ```
 
 Links:
-link_1: The robot needs to approach and open this link, which represents one of the refrigerator doors, to reach for the item inside.
+- link_1: The robot needs to approach and open this link, which represents one of the refrigerator doors, to reach for the item inside.
 
 Joints:
-joint_1: This joint connects link_1, representing one of the doors. The robot needs to actuate this joint to open the door, reach for the item, and close the door. 
+- joint_1: This joint connects link_1, representing one of the doors. The robot needs to actuate this joint to open the door, reach for the item, and close the door. 
 
 Output:
 The goal is for the robot arm to learn to retrieve an item from the refrigerator. Therefore, the item needs to be initially inside the refrigerator. From the refrigerator semantics we know that link_0 is the body of the refrigerator, therefore we should have a spatial relationship as the following:
@@ -78,11 +75,11 @@ link_0 static faucet_base
 link_1 hinge switch
 ```
 
-Links: 
-link_1: link_1 is the switch of the faucet. The robot needs to interact with this part to turn the faucet off.
+Links:
+- link_1: link_1 is the switch of the faucet. The robot needs to interact with this part to turn the faucet off.
 
 Joints:
-joint_1: Joint_1 is the revolute joint connecting link_1 (the switch) as per the articulation tree. The robot needs to actuate this joint to turn the faucet off.
+- joint_1: Joint_1 is the revolute joint connecting link_1 (the switch) as per the articulation tree. The robot needs to actuate this joint to turn the faucet off.
 
 Output:
 There is only 1 object involved in the task, thus no special spatial relationships are required.
@@ -117,10 +114,10 @@ link_2 slider drawer
 ```
 
 Links:
-link_2: link_2 is the drawer link from the semantics. The robot needs to open this drawer to place the item inside. 
+- link_2: link_2 is the drawer link from the semantics. The robot needs to open this drawer to place the item inside. 
 
-Joints: 
-joint_2: joint_2, from the articulation tree, connects to link_2 (the drawer). Thus, the robot would need to actuate this joint to open the drawer to store the item.
+Joints:
+- joint_2: joint_2, from the articulation tree, connects to link_2 (the drawer). Thus, the robot would need to actuate this joint to open the drawer to store the item.
 
 Output:
 This task involves putting one item into the drawer of the storage furniture. The item should initially be outside of the drawer, such that the robot can learn to put it into the drawer. Therefore, no special relationships of in or on are needed. Therefore, no special spatial relationships are needed.

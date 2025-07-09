@@ -4,6 +4,7 @@
         "distractor",
         "Franka",
         "partnet",
+        "pycache",
         "urdf"
     ]
 }

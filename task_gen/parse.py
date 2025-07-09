@@ -25,7 +25,7 @@ def parse_task_response(task_response):
                     joint_start_line = link_idx
                     break
                 else:
-                    involved_links.append(task_response[link_idx][2:].strip())
+                    involved_links.append("- " + task_response[link_idx][2:].strip())
             links.append("\n".join(involved_links))
 
             involved_joints = []
@@ -33,7 +33,7 @@ def parse_task_response(task_response):
                 if not task_response[joint_idx].lower().startswith("- "):
                     break
                 else:
-                    involved_joints.append(task_response[joint_idx][2:].strip())
+                    involved_joints.append("- " + task_response[joint_idx][2:].strip())
             joints.append("\n".join(involved_joints))
 
     return task_names, task_descriptions, additional_objects, links, joints

@@ -1,0 +1,24 @@
+-   task_description: The robotic arm will tilt the bucket by its handle to pour water
+        out of it.
+    task_name: Pour Water from Bucket
+-   use_table: false
+-   center: (1.0, 0.5, 0)
+    lang: a standard plastic bucket
+    movable: true
+    name: Bucket
+    on_table: false
+    path: bucket.urdf
+    reward_asset_path: ../data/dataset/100448
+    size: '0.4'
+    type: urdf
+-   center: (1.0, 0.5, 0.2)
+    lang: water
+    movable: false
+    name: Water
+    on_table: false
+    path: water.obj
+    size: '0.2'
+    type: mesh
+-   set_joint_angle_object_name: Bucket
+-   spatial_relationships:
+    - in, water, bucket, link_1

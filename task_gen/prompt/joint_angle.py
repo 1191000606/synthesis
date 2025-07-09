@@ -1,7 +1,4 @@
 def get_joint_angle_prompt(task_attr):
-    # Todo: links和joints前面有一个“- ”，目前没有这个。
-    # Todo: links中有两个的时候，应该是“- link_1: xxx\n- link_3: xxx”，目前有个样例不是这样
-
     return f"""Your goal is to set the joint angles of some articulated objects to the right value in the initial state, given a task. The task is for a robot arm to learn the corresponding skills to manipulate the articulated object. 
 
 The input to you will include the task name, a short description of the task, the articulation tree of the articulated object, a semantic file of the articulated object, and the links and joints of the articulated objects that will be involved in the task.
@@ -147,10 +144,12 @@ link_3 hinge rotation_bar
 ```
 
 Links:
-link_0 and link_1: These two links are necessary to direct the lamp light toward a specific area because they represent the rotation bar and lamp head respectively.
+- link_0: This is the rotation bar. It's necessary to direct the lamp light toward a specific area.
+- link_1: This is the lamp head. It's necessary to direct the lamp light toward a specific area.
 
 Joints:
-joint_0 and joint_1: These joints connect the rotation bar and the lamp head. By actuating both these joints, the robot can direct the light at a desired location.
+- joint_0: This joint connects the rotation bar. By actuating this joint, the robot can direct the light.
+- joint_1: This joint connects the lamp head. By actuating this joint, the robot can direct the light.
 
 Output:
 The task involves directing the lamp light at a specific area. The robot needs to learn to manipulate both the rotation bar and the lamp head to achieve this. Therefore, we need to set the initial joint angles such that the lamp is not already directed at the desired area. We can set both joint_0 and joint_1 to be randomly sampled.

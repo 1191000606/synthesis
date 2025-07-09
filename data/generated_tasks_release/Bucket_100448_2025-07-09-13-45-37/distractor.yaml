@@ -1,0 +1,40 @@
+-   center: (1.5, 1.5, 0)
+    lang: a standard mop with a long handle and a mop head
+    movable: false
+    name: Mop
+    on_table: false
+    path: mop.obj
+    size: 1.2
+    type: mesh
+-   center: (0.5, 1.0, 0)
+    lang: a common cleaning sponge
+    movable: false
+    name: Sponge
+    on_table: false
+    path: sponge.obj
+    size: 0.1
+    type: mesh
+-   center: (0.8, 1.5, 0)
+    lang: a plastic bottle of liquid detergent
+    movable: false
+    name: Detergent Bottle
+    on_table: false
+    path: detergent.obj
+    size: 0.3
+    type: mesh
+-   center: (1.2, 1.0, 0)
+    lang: a cleaning rag made of cloth
+    movable: false
+    name: Rag
+    on_table: false
+    path: rag.obj
+    size: 0.2
+    type: mesh
+-   center: (2.0, 1.0, 0)
+    lang: a metal toolbox containing various tools
+    movable: false
+    name: Toolbox
+    on_table: false
+    path: toolbox.obj
+    size: 0.5
+    type: mesh
