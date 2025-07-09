@@ -2,3 +2,4 @@ data/dataset/
 .vscode/
 .idea/
 xml_process/
+__pycache__/
