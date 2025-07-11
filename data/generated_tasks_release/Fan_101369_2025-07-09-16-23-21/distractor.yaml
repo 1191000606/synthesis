@@ -1,0 +1,42 @@
+-   center: (0.2, 0.2, 0)
+    lang: a laptop computer with a closed lid
+    movable: false
+    name: Laptop
+    on_table: true
+    path: laptop.obj
+    reward_asset_path: '9996'
+    size: 0.3
+    type: urdf
+-   center: (0.8, 0.3, 0)
+    lang: a spiral-bound notebook with a colored cover
+    movable: false
+    name: Notebook
+    on_table: true
+    path: notebook.obj
+    size: 0.25
+    type: mesh
+-   center: (0.7, 0.7, 0)
+    lang: a ceramic coffee mug with a handle
+    movable: false
+    name: Coffee Mug
+    on_table: true
+    path: coffee_mug.obj
+    size: 0.1
+    type: mesh
+-   center: (0.9, 0.1, 0)
+    lang: an adjustable desk lamp with a metal base
+    movable: false
+    name: Desk Lamp
+    on_table: true
+    path: desk_lamp.obj
+    size: 0.35
+    type: mesh
+-   center: (1.5, 0.5, 0)
+    lang: an office chair with wheels
+    movable: false
+    name: Chair
+    on_table: false
+    path: chair.obj
+    reward_asset_path: '39047'
+    size: 0.5
+    type: urdf

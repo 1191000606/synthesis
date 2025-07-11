@@ -1,0 +1,16 @@
+-   task_description: The robotic arm will rotate the fan's rotor to direct airflow
+        toward a specific area for cooling purposes.
+    task_name: Position Fan for Cooling
+-   use_table: true
+-   center: (0.5, 0.5, 0)
+    lang: a desk fan
+    movable: false
+    name: Fan
+    on_table: true
+    path: fan.urdf
+    reward_asset_path: ../data/dataset/101369
+    size: '0.4'
+    type: urdf
+-   joint_0: random
+    set_joint_angle_object_name: Fan
+-   spatial_relationships: []

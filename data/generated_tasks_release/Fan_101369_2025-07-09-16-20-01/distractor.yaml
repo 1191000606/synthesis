@@ -1,0 +1,92 @@
+-   center: (0.2, 0.8, 0)
+    lang: a standard laptop with a closed lid
+    movable: false
+    name: Laptop
+    on_table: true
+    path: laptop.obj
+    reward_asset_path: '11406'
+    size: 0.4
+    type: urdf
+-   all_uid:
+    - fb1546c32f1b49e9ae1b28fdfeb74713
+    - 7f21a2ea951746a3ad4353c857b3cef0
+    - 2490aa1120cf4db5aeff0ea21bab77ed
+    - af79a9504f2b44a881de51b09b26ead8
+    - 07141ec4d54b4485be1819a52e8ce7f6
+    - b7d498a138f343c7910ea169ed1c2a3f
+    - 0b30d2efe63f41b0a812904b610fe577
+    - 6c7affca797a4bd29edf63c9120248fe
+    - 7d0ab3bb6ba346c586db6f93ddb14018
+    - 5182049f5e6e48c89282287c0c9bf13e
+    center: (0.8, 0.2, 0)
+    lang: a spiral-bound notebook with a colored cover
+    movable: false
+    name: Notebook
+    on_table: true
+    path: notebook.obj
+    size: 0.25
+    type: mesh
+    uid:
+    - 07141ec4d54b4485be1819a52e8ce7f6
+-   center: (0.85, 0.25, 0)
+    lang: a standard ballpoint pen
+    movable: false
+    name: Pen
+    on_table: true
+    path: pen.obj
+    reward_asset_path: '102973'
+    size: 0.15
+    type: urdf
+-   all_uid:
+    - 53420893c98d4de992dea72a94110fe5
+    - 216de5761a4a4384bb8f34404af603a1
+    - 2c03fc90a4b34d54bc125f5109f60e17
+    - 3729cf312d054b9db8767c934ed13215
+    - 2cb9f4ffe72749c5841c164a857e7d78
+    - e9e3272375de41f1909faddc53de7d11
+    - 9272682c0f714933ac59202500f8d6c8
+    - d40aa57bd3134878b573ba48cfa37f2f
+    - 2b9f03310ed949d9ba2702264279bb53
+    - 566ecb1412f44137ba6dd7a3c8f5a34e
+    center: (0.7, 0.7, 0)
+    lang: a ceramic coffee mug with a handle
+    movable: false
+    name: Coffee Mug
+    on_table: true
+    path: coffee_mug.obj
+    size: 0.1
+    type: mesh
+    uid:
+    - 3729cf312d054b9db8767c934ed13215
+    - e9e3272375de41f1909faddc53de7d11
+    - 2b9f03310ed949d9ba2702264279bb53
+-   all_uid:
+    - 0b29453835364f39858de181ee5e891f
+    - 063b1669850e4ef09d5915536dba2476
+    - a3446b558d0745f78376824fd03a4de8
+    - 7be9e6cbf6e04365a028217a4874730e
+    - ed1ebcd831c04dbc950f6239e6662802
+    - a80e7112d1d84ba184d603fe8cabacf4
+    - 91f0378f0d1545189fb99b79781f0313
+    - 9022bc063383475aaad8ad140088df21
+    - d79946fc3a024ec599d1259c7ff3b3fa
+    - e0058d59ac714df898d10ff56198a117
+    center: (1.5, 0.5, 0)
+    lang: an adjustable desk lamp with a metal base
+    movable: false
+    name: Desk Lamp
+    on_table: false
+    path: desk_lamp.obj
+    size: 0.5
+    type: mesh
+    uid:
+    - 0b29453835364f39858de181ee5e891f
+    - 063b1669850e4ef09d5915536dba2476
+    - a3446b558d0745f78376824fd03a4de8
+    - 7be9e6cbf6e04365a028217a4874730e
+    - ed1ebcd831c04dbc950f6239e6662802
+    - a80e7112d1d84ba184d603fe8cabacf4
+    - 91f0378f0d1545189fb99b79781f0313
+    - 9022bc063383475aaad8ad140088df21
+    - d79946fc3a024ec599d1259c7ff3b3fa
+    - e0058d59ac714df898d10ff56198a117

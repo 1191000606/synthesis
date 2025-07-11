@@ -105,7 +105,7 @@ def find_uid(obj_descrption, candidate_num=10, debug=False, task_name=None, task
 
         text_to_uid_dict[obj_descrption] = usable_uids
         text_to_uid_dict[obj_descrption + "_all"] = all_uid_candidates
-        with open("objaverse_utils/text_to_uid.json", 'w') as f:
+        with open(osp.join(root_path, 'data/objaverse/text_to_uid.json'), 'w') as f:
             json.dump(text_to_uid_dict, f, indent=4)
         return usable_uids
     else:
@@ -131,11 +131,12 @@ def verify_objaverse_object(object_name, uid, task_name=None, task_description=N
     except:
         return False
     
-    if not os.path.exists('objaverse_utils/data/images'):
-        os.makedirs('objaverse_utils/data/images')
+    if not os.path.exists(osp.join(root_path,'data/objaverse/data/images')):
+        os.makedirs(osp.join(root_path,'data/objaverse/data/images'))
         
-    raw_image.save("objaverse_utils/data/images/{}.jpeg".format(uid))
-    bard_image = open("objaverse_utils/data/images/{}.jpeg".format(uid), "rb").read()
+    raw_image.save(osp.join(root_path,"data/objaverse/data/images/{}.jpeg".format(uid)))
+    # bard_image = open("objaverse_utils/data/images/{}.jpeg".format(uid), "rb").read()
+    bard_image = open(osp.join(root_path,"data/objaverse/data/images/{}.jpeg".format(uid)), "rb").read()
 
     descriptions = []
     if use_bard:
@@ -149,7 +150,6 @@ def verify_objaverse_object(object_name, uid, task_name=None, task_description=N
 
     for description in descriptions:
         if description:
-            system = "You are a helpful assistant."
             query_string = """
             A robotic arm is trying to solve a task to learn a manipulation skill in a simulator.
         We are trying to find the best objects to load into the simulator to build this task for the robot to learn the skill.
@@ -165,12 +165,10 @@ def verify_objaverse_object(object_name, uid, task_name=None, task_description=N
         Please reply first with your reasoning, and then a single line with "**yes**" or "**no**" to indicate whether this object can be used.
         """.format(task_name, task_description, object_name, object_name, task_name, description)
         
-            if not os.path.exists('data/debug'):
-                os.makedirs('data/debug')
+            if not os.path.exists(osp.join(root_path,'data/objaverse/data/debug')):
+                os.makedirs(osp.join(root_path,'data/objaverse/data/debug'))
                 
-                
-                
-            ### 这里需要调用语言模型，代码转移后需要修改调用的模型 ###
+
             res = llm_generate(query_string)
             
             responses = res.split("\n")
@@ -232,8 +230,8 @@ def blip2_caption(image: Image.Image) -> str:
         out = blip2.generate(**inputs, max_new_tokens=40)
     return processor.decode(out[0], skip_special_tokens=True).strip()
 
-if osp.exists("objaverse_utils/text_to_uid.json"):
-    with open("objaverse_utils/text_to_uid.json", 'r') as f:
+if osp.exists(osp.join(root_path, 'data/objaverse/text_to_uid.json')):
+    with open(osp.join(root_path, 'data/objaverse/text_to_uid.json'), 'r') as f:
         text_to_uid_dict = json.load(f)
 else:
     text_to_uid_dict = {}
@@ -307,7 +305,7 @@ def down_load_single_object(name, uids=None, candidate_num=5, vhacd=True, debug=
     for uid in uids:
         ###################################################################
         #save_path = osp.join("objaverse_utils/data/obj", "{}".format(uid))
-        save_path = osp.join("data/objaverse/data/obj", "{}".format(uid))
+        save_path = osp.join(root_path,"data/objaverse/data/obj", "{}".format(uid))
         print("save_path is: ", save_path)
         if not osp.exists(save_path):
             os.makedirs(save_path)
@@ -454,4 +452,4 @@ def run_vhacd(input_obj_file_path, normalized=True, obj_name="material"):
     
 if __name__ == "__main__":
 
-    down("/home/szwang/synthesis/data/generated_tasks_release/Fan_101369_2025-07-09-16-21-07")
+    down("/home/szwang/synthesis/data/generated_tasks_release/Fan_101369_2025-07-09-16-22-20")

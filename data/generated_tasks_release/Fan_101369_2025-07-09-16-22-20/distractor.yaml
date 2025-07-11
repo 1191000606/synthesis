@@ -1,0 +1,113 @@
+-   all_uid:
+    - fa2ee54d827c4b6c86e480ab254976ca
+    - a3446b558d0745f78376824fd03a4de8
+    - 3bd0ede4b54b40d5a4932a3a8b969e4a
+    - 03567b3881dc44a98ff3e6c1d449e32d
+    - 680c05d16e9b473bb123ba935d9a358c
+    - b4da62f24b3c48fda15568dccd41d0d1
+    - 21f904d8fc844c25a4cc177eee214921
+    - e166607cbe8f4abd911899f71f7014d6
+    - 2dad7bb2dc5240a1a34eef0ae3ff4755
+    - a80e7112d1d84ba184d603fe8cabacf4
+    center: (0.2, 0.8, 0)
+    lang: a standard desk lamp with a flexible neck and LED bulb
+    movable: false
+    name: Desk Lamp
+    on_table: true
+    path: desk_lamp.obj
+    size: 0.3
+    type: mesh
+    uid:
+    - fa2ee54d827c4b6c86e480ab254976ca
+    - a3446b558d0745f78376824fd03a4de8
+    - 3bd0ede4b54b40d5a4932a3a8b969e4a
+    - 03567b3881dc44a98ff3e6c1d449e32d
+    - 680c05d16e9b473bb123ba935d9a358c
+    - b4da62f24b3c48fda15568dccd41d0d1
+    - 21f904d8fc844c25a4cc177eee214921
+    - e166607cbe8f4abd911899f71f7014d6
+    - 2dad7bb2dc5240a1a34eef0ae3ff4755
+    - a80e7112d1d84ba184d603fe8cabacf4
+-   all_uid:
+    - fb1546c32f1b49e9ae1b28fdfeb74713
+    - 7f21a2ea951746a3ad4353c857b3cef0
+    - 2490aa1120cf4db5aeff0ea21bab77ed
+    - af79a9504f2b44a881de51b09b26ead8
+    - 07141ec4d54b4485be1819a52e8ce7f6
+    - 6c7affca797a4bd29edf63c9120248fe
+    - b7d498a138f343c7910ea169ed1c2a3f
+    - 0b30d2efe63f41b0a812904b610fe577
+    - 2a37a4b61b8c4aad9e4eb78a689913a4
+    - 7d0ab3bb6ba346c586db6f93ddb14018
+    center: (0.7, 0.8, 0)
+    lang: a spiral-bound notebook with a colorful cover
+    movable: false
+    name: Notebook
+    on_table: true
+    path: notebook.obj
+    size: 0.25
+    type: mesh
+    uid:
+    - 07141ec4d54b4485be1819a52e8ce7f6
+    - 2a37a4b61b8c4aad9e4eb78a689913a4
+-   all_uid:
+    - 53420893c98d4de992dea72a94110fe5
+    - 216de5761a4a4384bb8f34404af603a1
+    - 2c03fc90a4b34d54bc125f5109f60e17
+    - 3729cf312d054b9db8767c934ed13215
+    - 2cb9f4ffe72749c5841c164a857e7d78
+    - e9e3272375de41f1909faddc53de7d11
+    - 9272682c0f714933ac59202500f8d6c8
+    - d40aa57bd3134878b573ba48cfa37f2f
+    - 2b9f03310ed949d9ba2702264279bb53
+    - 566ecb1412f44137ba6dd7a3c8f5a34e
+    center: (0.8, 0.3, 0)
+    lang: a ceramic coffee mug with a handle
+    movable: false
+    name: Coffee Mug
+    on_table: true
+    path: coffee_mug.obj
+    size: 0.1
+    type: mesh
+    uid:
+    - 3729cf312d054b9db8767c934ed13215
+    - e9e3272375de41f1909faddc53de7d11
+-   center: (1.5, 0.5, 0)
+    lang: a standard office chair with wheels
+    movable: false
+    name: Chair
+    on_table: false
+    path: office_chair.obj
+    reward_asset_path: '40890'
+    size: 0.5
+    type: urdf
+-   all_uid:
+    - efe2a35b92c443519fab5a5b515e92ab
+    - 52d50196f05547c98f5bc6d4ed532741
+    - 132b59c1ba384379b54cc1d1536cc210
+    - 282fa83278294570a515454bc28bdf54
+    - d9df68998c8f4f33b05e6bb0dd27df02
+    - 5d2bbb90101e4f059f92e7cbb86f1114
+    - 3e464b5d2c3e41c4abf1b2dbb49a0ed4
+    - 45d25af6b467467d9f35f5778ec36567
+    - 939bce9ccaec4d5ab3404dca172d2f45
+    - 892343f0bcc24e3dad50cbcc22272210
+    center: (-1.0, 0.5, 0)
+    lang: a tall wooden bookshelf with multiple shelves
+    movable: false
+    name: Bookshelf
+    on_table: false
+    path: bookshelf.obj
+    size: 1.0
+    type: mesh
+    uid:
+    - efe2a35b92c443519fab5a5b515e92ab
+    - 52d50196f05547c98f5bc6d4ed532741
+    - 132b59c1ba384379b54cc1d1536cc210
+    - 282fa83278294570a515454bc28bdf54
+    - d9df68998c8f4f33b05e6bb0dd27df02
+    - 5d2bbb90101e4f059f92e7cbb86f1114
+    - 3e464b5d2c3e41c4abf1b2dbb49a0ed4
+    - 45d25af6b467467d9f35f5778ec36567
+    - 939bce9ccaec4d5ab3404dca172d2f45
+    - 892343f0bcc24e3dad50cbcc22272210
