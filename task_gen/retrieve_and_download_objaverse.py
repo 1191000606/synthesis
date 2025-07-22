@@ -16,21 +16,16 @@ from bardapi import Bard
 from llm import llm_generate
 from pathlib import Path
 from transformers import Blip2Processor, Blip2ForConditionalGeneration
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 ckpt = "Salesforce/blip2-flan-t5-xl"     # 也可用 blip2-opt-2.7b 或 blip2-flan-t5-xxl
 processor = Blip2Processor.from_pretrained(ckpt)
 blip2 = Blip2ForConditionalGeneration.from_pretrained(ckpt, torch_dtype=torch.float16 if device=="cuda" else torch.float32)
 blip2.to(device).eval()
-
-
-
 sentence_bert_model = None
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
 root_path = '/home/szwang/synthesis'
-
 objaverse_csv = pd.read_csv(osp.join(root_path, 'data/objaverse/Cap3D_automated_Objaverse.csv'))
-
 objaverse_csv = objaverse_csv.dropna()
 objaverse_csv_uids = list(objaverse_csv.iloc[:, 0].values)
 objaverse_csv_annotations = list(objaverse_csv.iloc[:, 1].values)

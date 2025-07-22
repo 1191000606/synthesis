@@ -25,8 +25,8 @@ extension_path = get_extension_path_from_name("isaacsim.asset.importer.urdf")
 status, prim_path = omni.kit.commands.execute(
     "URDFParseAndImportFile",
     # urdf_path=extension_path + "/data/urdf/robots/carter/urdf/carter.urdf",
-    # urdf_path = "/home/szwang/synthesis/data/dataset/4564/mobility.urdf",
-    urdf_path ="/home/szwang/synthesis/data/objaverse/data/obj/939bce9ccaec4d5ab3404dca172d2f45/material.urdf",
+    urdf_path = "/home/szwang/synthesis/data/dataset/4564/mobility.urdf",
+    # urdf_path ="/home/szwang/synthesis/data/objaverse/data/obj/939bce9ccaec4d5ab3404dca172d2f45/material.urdf",
     import_config=import_config,
     get_articulation_root=True,
 
@@ -76,17 +76,29 @@ from isaacsim.core.prims import SingleArticulation   # 更推荐的新接口
 art = SingleArticulation(prim_path)
 art.initialize()
 
-print("dof_names :", art.dof_names)            # 打印所有自由度（关节）名字
+# 设置位置和缩放
+from pxr import UsdGeom
+xform_prim = stage.GetPrimAtPath(prim_path)
+xform = UsdGeom.Xformable(xform_prim)
 
-
-
-if not art.is_valid():
-    print(f"{prim_path} is not an articulation")
+# 设置位置
+for op in xform.GetOrderedXformOps():
+    if op.GetOpType() == UsdGeom.XformOp.TypeTranslate:
+        op.Set(Gf.Vec3d(3.0, 3.0, 0.0))
+        break
 else:
-    print(f"Got articulation ({prim_path})")
+    xform.AddTranslateOp().Set(Gf.Vec3d(3.0, 3.0, 0.0))
 
+# 设置缩放
+for op in xform.GetOrderedXformOps():
+    if op.GetOpType() == UsdGeom.XformOp.TypeScale:
+        op.Set(Gf.Vec3f(2.0, 2.0, 5.0))
+        break
+else:
+    xform.AddScaleOp().Set(Gf.Vec3f(2.0, 2.0, 5.0))
 
-art.set_joint_velocities(np.array([20.0], dtype=np.float32))
+kit.update()
+
 
 # 设置速度目标后，先跑一帧
 kit.update()                           # ← 第二次 physics step，SimView 已生成

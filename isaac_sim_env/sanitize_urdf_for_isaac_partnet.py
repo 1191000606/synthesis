@@ -31,7 +31,6 @@ def rename_file(old: pathlib.Path, dry=False) -> pathlib.Path:
         old.rename(new)
     return new
 
-# ---------- ① 批量改名 + 修 obj 内容 ----------
 # ---------- ① 批量改名 + 修 obj & mtl 内容 ----------
 def process_obj_and_mtl(root_dir: pathlib.Path, dry=False):
     obj_root = root_dir / OBJ_DIR

@@ -9,6 +9,7 @@ import omni.usd, omni.kit.commands as okc
 from pxr import Gf, Sdf, UsdPhysics, UsdLux, PhysxSchema
 from isaacsim.core.prims import RigidPrim
 import pathlib
+from pxr import UsdGeom
 
 # ---------- 1. 导入 URDF ----------
 cfg_status, cfg = okc.execute("URDFCreateImportConfig")
@@ -51,12 +52,47 @@ rigid = RigidPrim(base_path)
 omni.timeline.get_timeline_interface().play()
 kit.update()          # <- 第一帧；PhysicsSimulationView 此时才生成
 
-# ③ 现在初始化刚体
+
+# ③ 初始化刚体
 rigid.initialize()
 
-# （可选）设置初始角速度
-# rigid.set_angular_velocity(np.array([0,0,2], dtype=np.float32))
+# ---------- ✳️ 设置是否可动 ----------
+movable = False  # ← 修改这里控制是否允许移动
+
+prim = stage.GetPrimAtPath(base_path)
+from pxr import PhysxSchema
+
+# 设置 USD rigid 属性
+rigid_api = UsdPhysics.RigidBodyAPI.Apply(prim)
+rigid_api.CreateRigidBodyEnabledAttr(movable)
+
+# 设置 PhysX motion 属性
+prim.CreateAttribute("physx:rigidBody:motionEnabled", Sdf.ValueTypeNames.Bool).Set(movable)
+
+
+print(f"[INFO] Set object movable = {movable}")
+
+# ---------- ✳️ 设置位置和缩放 ----------
+xform = UsdGeom.Xformable(prim)
+
+# 设置位置
+for op in xform.GetOrderedXformOps():
+    if op.GetOpType() == UsdGeom.XformOp.TypeTranslate:
+        op.Set(Gf.Vec3d(5.0, 5.0, 0.0))
+        break
+else:
+    xform.AddTranslateOp().Set(Gf.Vec3d(5.0, 5.0, 0.0))
+
+# 设置缩放
+for op in xform.GetOrderedXformOps():
+    if op.GetOpType() == UsdGeom.XformOp.TypeScale:
+        op.Set(Gf.Vec3f(1.0, 5.0, 1.0))
+        break
+else:
+    xform.AddScaleOp().Set(Gf.Vec3f(1.0, 5.0, 1.0))
+
 
 # ④ 后续正常循环
 while kit.is_running():
     kit.update()
+
