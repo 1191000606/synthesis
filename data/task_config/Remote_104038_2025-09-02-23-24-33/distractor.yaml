@@ -1,0 +1,50 @@
+-   asset_path: ./data/objaverse/dataset/b2f52afe8501436391041efff41dd6e5
+    center: (2.5, 0.8, 0)
+    lang: a flat screen television mounted on a stand
+    movable: false
+    name: Television
+    on_table: false
+    path: television.obj
+    size: 1.2
+    type: mesh
+-   center: (2.0, 1.5, 0)
+    lang: a bookshelf speaker for audio systems
+    movable: false
+    name: Speaker
+    on_table: false
+    path: speaker.obj
+    size: 0.4
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/66e529c62ac54f2d905facffc5a77cb6
+    center: (1.8, 0.0, 0)
+    lang: a low wooden coffee table
+    movable: false
+    name: Coffee Table
+    on_table: false
+    path: coffee_table.obj
+    size: 1.0
+    type: mesh
+-   center: (0.8, 0.3, 0)
+    lang: a home entertainment magazine
+    movable: false
+    name: Magazine
+    on_table: true
+    path: magazine.obj
+    size: 0.3
+    type: mesh
+-   center: (0.2, 0.7, 0)
+    lang: a circular drink coaster
+    movable: false
+    name: Drink Coaster
+    on_table: true
+    path: coaster.obj
+    size: 0.1
+    type: mesh
+-   center: (2.2, 0.3, 0)
+    lang: a digital cable television receiver box
+    movable: false
+    name: Cable Box
+    on_table: false
+    path: cable_box.obj
+    size: 0.3
+    type: mesh

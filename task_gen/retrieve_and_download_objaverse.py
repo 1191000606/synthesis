@@ -1,3 +1,4 @@
+import pandas as pd # 这个可能得先conda activate synthesis，直接在base下debug这一行会报错
 import os
 import yaml
 import os.path as osp
@@ -7,7 +8,6 @@ import objaverse
 import trimesh
 import numpy as np
 import pybullet as p
-import pandas as pd
 import torch
 from sentence_transformers import SentenceTransformer, util
 from PIL import Image
@@ -17,30 +17,34 @@ from llm import llm_generate
 from pathlib import Path
 from transformers import Blip2Processor, Blip2ForConditionalGeneration
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-ckpt = "Salesforce/blip2-flan-t5-xl"     # 也可用 blip2-opt-2.7b 或 blip2-flan-t5-xxl
-processor = Blip2Processor.from_pretrained(ckpt)
-blip2 = Blip2ForConditionalGeneration.from_pretrained(ckpt, torch_dtype=torch.float16 if device=="cuda" else torch.float32)
-blip2.to(device).eval()
-sentence_bert_model = None
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-root_path = '/home/szwang/synthesis'
-objaverse_csv = pd.read_csv(osp.join(root_path, 'data/objaverse/Cap3D_automated_Objaverse.csv'))
-objaverse_csv = objaverse_csv.dropna()
-objaverse_csv_uids = list(objaverse_csv.iloc[:, 0].values)
-objaverse_csv_annotations = list(objaverse_csv.iloc[:, 1].values)
-objaverse_csv_annotations_embeddings = torch.load((osp.join(root_path, 'data/objaverse/data/cap3d_sentence_bert_embeddings.pt')), weights_only=False)
-tag_uids = []
-tag_embeddings = []
-tag_descriptions = [] 
-num_chunks = 31
-for idx in range(num_chunks):
-    uids = torch.load(osp.join(root_path,"data/objaverse/data/default_tag_uids_{}.pt".format(idx)),weights_only=False,map_location="cpu")#.to(device)
-    embeddings = torch.load(osp.join(root_path,"data/objaverse/data/default_tag_embeddings_{}.pt".format(idx)),weights_only=False,map_location="cpu")#.to(device)
-    descriptions = torch.load(osp.join(root_path,"data/objaverse/data/default_tag_names_{}.pt".format(idx)),weights_only=False,map_location="cpu")#.to(device)
-    tag_uids = tag_uids + uids
-    tag_descriptions = tag_descriptions + descriptions
-    tag_embeddings.append(embeddings)
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# ckpt = "Salesforce/blip2-flan-t5-xl"     # 也可用 blip2-opt-2.7b 或 blip2-flan-t5-xxl
+# processor = Blip2Processor.from_pretrained(ckpt, use_fast=True)
+
+# blip2 = Blip2ForConditionalGeneration.from_pretrained(ckpt, torch_dtype=torch.float16 if device=="cuda" else torch.float32)
+# blip2.to(device).eval()
+# blip2 = Blip2ForConditionalGeneration.from_pretrained(ckpt, load_in_8bit=True)
+# blip2.eval()
+
+# sentence_bert_model = None
+# os.environ["TOKENIZERS_PARALLELISM"] = "false"
+# root_path = '/home/szwang/synthesis'
+# objaverse_csv = pd.read_csv(osp.join(root_path, 'data/objaverse/Cap3D_automated_Objaverse.csv'))
+# objaverse_csv = objaverse_csv.dropna()
+# objaverse_csv_uids = list(objaverse_csv.iloc[:, 0].values)
+# objaverse_csv_annotations = list(objaverse_csv.iloc[:, 1].values)
+# objaverse_csv_annotations_embeddings = torch.load((osp.join(root_path, 'data/objaverse/data/cap3d_sentence_bert_embeddings.pt')), weights_only=False)
+# tag_uids = []
+# tag_embeddings = []
+# tag_descriptions = [] 
+# num_chunks = 31
+# for idx in range(num_chunks):
+#     uids = torch.load(osp.join(root_path,"data/objaverse/data/default_tag_uids_{}.pt".format(idx)),weights_only=False,map_location="cpu")#.to(device)
+#     embeddings = torch.load(osp.join(root_path,"data/objaverse/data/default_tag_embeddings_{}.pt".format(idx)),weights_only=False,map_location="cpu")#.to(device)
+#     descriptions = torch.load(osp.join(root_path,"data/objaverse/data/default_tag_names_{}.pt".format(idx)),weights_only=False,map_location="cpu")#.to(device)
+#     tag_uids = tag_uids + uids
+#     tag_descriptions = tag_descriptions + descriptions
+#     tag_embeddings.append(embeddings)
 
 def check_text_similarity(text, check_list=None, check_embeddings=None):
     global sentence_bert_model
@@ -203,8 +207,8 @@ def bard_verify(image):
     print("bard description: ", description)
     print("===============")
     return description
-    
-    
+
+
 '''
 def blip2_caption(image):
     # preprocess the image
@@ -247,9 +251,8 @@ def down(folder_path):
             # 调用下载和解析函数
             download_and_parse_objavarse_obj_from_yaml_config(file_path)
     print("下载完成。")
-    
-    
-    
+
+
 def download_and_parse_objavarse_obj_from_yaml_config(config_path, candidate_num=10, vhacd=True):
 
     config = None
@@ -280,7 +283,6 @@ def download_and_parse_objavarse_obj_from_yaml_config(config_path, candidate_num
                 yaml.dump(config, f, indent=4)
 
     return True
-
 
 
 def down_load_single_object(name, uids=None, candidate_num=5, vhacd=True, debug=False, task_name=None, task_description=None):
@@ -409,7 +411,6 @@ def obj_to_urdf(obj_file_path, scale=1, vhacd=True, normalized=True, obj_name='m
         f.write(urdf)
 
 
-
 def normalize_obj(obj_file_path):
     vertices = []
     with open(osp.join(obj_file_path), 'r') as f:
@@ -429,7 +430,7 @@ def normalize_obj(obj_file_path):
                 line = "v " + " ".join([str(x) for x in vertices[vertex_idx]]) + "\n"
                 vertex_idx += 1
             f.write(line)
-            
+
 def run_vhacd(input_obj_file_path, normalized=True, obj_name="material"):
     p.connect(p.DIRECT)
     if normalized:
@@ -441,10 +442,8 @@ def run_vhacd(input_obj_file_path, normalized=True, obj_name="material"):
         name_out = os.path.join(input_obj_file_path, "{}_vhacd.obj".format(obj_name))
         name_log = os.path.join(input_obj_file_path, "log.txt")
     p.vhacd(name_in, name_out, name_log)
-    
-    
-    
-    
+
+
 if __name__ == "__main__":
 
     down("/home/szwang/synthesis/data/generated_tasks_release/Fan_101369_2025-07-09-16-22-20")

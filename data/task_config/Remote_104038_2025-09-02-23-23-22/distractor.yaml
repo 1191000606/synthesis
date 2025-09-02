@@ -1,0 +1,52 @@
+-   asset_path: ./data/objaverse/dataset/b2f52afe8501436391041efff41dd6e5
+    center: (2.5, 0.8, 0)
+    lang: a flat screen television mounted on a stand
+    movable: false
+    name: Television
+    on_table: false
+    path: television.obj
+    size: 1.2
+    type: mesh
+-   center: (3.0, 2.5, 0)
+    lang: a comfortable three-seater sofa for watching television
+    movable: false
+    name: Sofa
+    on_table: false
+    path: sofa.obj
+    size: 2.0
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/9cbea7ed28a74a8cb574f10e91908d6a
+    center: (2.0, 2.0, 0)
+    lang: a wooden coffee table with four legs
+    movable: false
+    name: Coffee Table
+    on_table: false
+    path: coffee_table.obj
+    size: 1.0
+    type: mesh
+-   center: (0.8, 0.2, 0)
+    lang: a lifestyle magazine with colorful cover
+    movable: false
+    name: Magazine
+    on_table: true
+    path: magazine.obj
+    size: 0.3
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/b1dd6e4881b648039779b58a9c82d72c
+    center: (0.2, 0.8, 0)
+    lang: a clear glass for beverages with condensation
+    movable: false
+    name: Drinking Glass
+    on_table: true
+    path: drinking_glass.obj
+    size: 0.12
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/c362bb816d2c4cd4ab99f8cb4bf52be8
+    center: (0.7, 0.7, 0)
+    lang: a modern smartphone with touch screen
+    movable: false
+    name: Smartphone
+    on_table: true
+    path: smartphone.obj
+    size: 0.15
+    type: mesh

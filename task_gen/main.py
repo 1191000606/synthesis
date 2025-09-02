@@ -8,20 +8,19 @@ import yaml
 from prompt import get_task_gen_prompt, get_scene_gen_prompt, get_joint_angle_prompt, get_spatial_relationship_prompt, get_distractor_prompt
 from parse import parse_joint_angle_response, parse_response_to_get_yaml, parse_spatial_relationship_response, parse_task_response
 from llm import llm_generate
-from utils import adjust_size, match_similar_object_from_partnet
+from utils import adjust_size, match_similar_object_from_objaverse, match_similar_object_from_partnet
 
-with open("../data/partnet_category.txt", "r") as f:
+with open("./data/partnet/category.txt", "r") as f:
     partnet_category_list = [line.strip() for line in f.readlines()]
 
-with open("../data/partnet_mobility_dict.json", "r") as f:
+with open("./data/partnet/category_to_ids.json", "r") as f:
     partnet_ids_dict = json.load(f)
 
 object_category = random.choice(partnet_category_list)
 
 object_id = random.choice(partnet_ids_dict[object_category])
 
-# object_path = f"../RoboGen/data/dataset/{object_id}"  软链接前
-object_path = f"../data/dataset/{object_id}"
+object_path = f"./data/partnet/dataset/{object_id}"
 
 with open(f"{object_path}/link_and_joint.txt", 'r') as f:
     articulation_tree = f.readlines()
@@ -59,7 +58,7 @@ for task_name, task_description, additional_object, link, joint in zip(*task_att
     for obj in scene_config:
         if "name" in obj and obj["name"] == object_category:
             obj["type"] = "urdf"
-            obj["reward_asset_path"] = object_path
+            obj["asset_path"] = object_path
 
     configs.extend(scene_config)
 
@@ -84,8 +83,10 @@ for task_name, task_description, additional_object, link, joint in zip(*task_att
 
     distractor_config = match_similar_object_from_partnet(distractor_config)
 
+    distractor_config = match_similar_object_from__objaverse(distractor_config)
+
     time_string = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M-%S') # Todo：这里可能后续会有冲突，比如高并发的时候，到时候可以加上一个随机数或者UUID
-    save_folder = f"../data/generated_tasks_release/{object_category}_{object_id}_{time_string}"
+    save_folder = f"./data/task_config/{object_category}_{object_id}_{time_string}"
 
     os.makedirs(save_folder, exist_ok=True)
 
