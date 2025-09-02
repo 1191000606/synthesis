@@ -1,4 +1,6 @@
-data/dataset/
+data/partnet/dataset/
+data/objaverse/cap3d_full_bgem3_embeddings.pkl
+data/objaverse/objaverse_xl.csv
 .vscode/
 .idea/
 xml_process/
