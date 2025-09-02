@@ -83,7 +83,7 @@ for task_name, task_description, additional_object, link, joint in zip(*task_att
 
     distractor_config = match_similar_object_from_partnet(distractor_config)
 
-    distractor_config = match_similar_object_from__objaverse(distractor_config)
+    distractor_config = match_similar_object_from_objaverse(distractor_config)
 
     time_string = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M-%S') # Todo：这里可能后续会有冲突，比如高并发的时候，到时候可以加上一个随机数或者UUID
     save_folder = f"./data/task_config/{object_category}_{object_id}_{time_string}"
