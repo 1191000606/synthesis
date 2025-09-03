@@ -53,15 +53,46 @@ from isaacsim.core.api.objects import DynamicCuboid, GroundPlane
 from isaacsim.core.api import World
 from isaacsim.core.utils.viewports import set_camera_view
 
+import omni.kit.commands
+from isaacsim.core.prims import XFormPrim
+from pxr import UsdPhysics, Sdf
+
+
+
+
 class FrankaPlaying(BaseTask):
-    def __init__(self, name, offset=None):
+    def __init__(self, name, offset=None, scene_config=None):
         super().__init__(name=name, offset=offset)
         self._goal_position = np.array([-0.3, -0.3, 0.05515/2.0])
         self._task_achieved = False
+        self._scene_config = scene_config
         return
     # 似乎是必有的方法
     # 设置任务的场景
+
+    
+    
+    # 在场景中添加urdf物体的方法：
+    # success, prim_path = okc.execute(
+        #     "URDFParseAndImportFile",
+        #     urdf_path=urdf_path,
+        #     import_config=cfg,
+        #     get_articulation_root=True,
+            
+        # )
+    # 得到prim_path后，用类似
+    # prims = XFormPrim(prim_paths_expr="/World" )
+    # scene.add(prims)
+    # 这样来在scene中添加物体
+    
+    # 先实现一个这样的函数：
+    # 给定obj_id，那么
+    # urdf_path = f"/home/szwang/synthesis/data/objaverse/data/obj/{obj_id}/material.urdf"
+    
+    
+    
     def set_up_scene(self, scene):
+        
         super().set_up_scene(scene)
         scene.add_default_ground_plane()
         self._cube = scene.add(DynamicCuboid(
@@ -75,7 +106,56 @@ class FrankaPlaying(BaseTask):
             prim_path="/World/Fancy_Franka",
             name="fancy_franka"
         ))
+        for i in range(len(self._scene_config["obj_ids"])):
+            obj_id = self._scene_config["obj_ids"][i]
+            position = self._scene_config["positions"][i]
+            scale = self._scene_config["scales"][i]
+            movable = self._scene_config["movables"][i]
+            self.add_objaverse_scene(scene, obj_id, position, scale, movable)
         return
+    
+    def add_objaverse_scene(self, scene, obj_id, position, scale, movable):
+        urdf_path = f"/home/szwang/synthesis/data/objaverse/data/obj/{obj_id}/material.urdf"
+        _, cfg = omni.kit.commands.execute("URDFCreateImportConfig")
+        cfg.merge_fixed_joints    = False
+        cfg.convex_decomp         = False
+        cfg.import_inertia_tensor = True
+        cfg.fix_base              = not movable  #这这个目前还有问题
+
+
+        success, prim_path = omni.kit.commands.execute(
+            "URDFParseAndImportFile",
+            urdf_path=urdf_path,
+            import_config=cfg,
+            get_articulation_root=True,
+        )
+
+
+
+        pos = np.asarray(position, dtype=np.float32).reshape(1, 3)
+        
+        if np.isscalar(scale):
+            scl = np.full((1, 3), float(scale), dtype=np.float32)
+        else:
+            scl = np.asarray(scale, dtype=np.float32).reshape(1, 3)
+
+        prims = XFormPrim(
+            prim_paths_expr=prim_path,
+            name=str(obj_id),
+            positions=pos,           # (1,3)
+            translations=None,       # 不要和 positions 同时给
+            scales=scl               # (1,3)
+        )   
+        print("prims")
+        print(prims)
+        
+
+        scene.add(prims)
+        return prim_path
+    
+    
+    
+    
     #似乎是必有的方法
     # 获取观测值，架起环境状态与控制器的桥梁，使得控制器可以获取到环境状态信息
     def get_observations(self):
@@ -127,7 +207,7 @@ class HelloWorld(BaseSample):
         self._world = World(stage_units_in_meters=1.0)
         world = self.get_world()
         ####!!!!
-        world.add_task(FrankaPlaying(name="my_first_task"))
+        world.add_task(FrankaPlaying(name="my_first_task",scene_config = scene_config))
         world.reset()  # 重置世界状态
         set_camera_view(eye=[1.5, 1.5, 1.5], target=[0.01, 0.01, 0.01], camera_prim_path="/OmniverseKit_Persp")
         return
@@ -182,11 +262,37 @@ class HelloWorld(BaseSample):
 import asyncio
 
 if __name__ == "__main__":
+    # scene_config是一个字典，包含场景的配置信息，包含的key为obj_ids、positions、scales、movables
+    scene_config = {
+        "obj_ids": [
+            "939bce9ccaec4d5ab3404dca172d2f45",
+            "3729cf312d054b9db8767c934ed13215",
+            "03567b3881dc44a98ff3e6c1d449e32d",
+        ],
+        "positions": [
+            (0.5, 0, 0),
+            (-2, 2, 0),
+            (0, -2, 0),
+        ],
+        "scales": [
+            (0.1, 0.1, 0.1),
+            (2, 2, 2),
+            (1, 1, 1.5),
+        ],
+        "movables": [
+            True,
+            True,
+            True,
+        ]
+    }
     demo = HelloWorld()  # 实例化HelloWorld类
     
     # 使用 asyncio 来运行异步加载世界和设置任务
     demo.setup_scene()
+    print("wsz0")
+
     asyncio.run(demo.setup_post_load())  # 等待任务加载完成后，启动仿真
+    print("wsz1")
 
     # 等待仿真运行，直到仿真结束
     while simulation_app.is_running():
@@ -208,12 +314,13 @@ if __name__ == "__main__":
 
     # 使用 asyncio 来运行异步加载世界和设置任务
     # asyncio.run(demo.load_world_async())  # 异步加载世界并设置任务
-    # load_world_async调用到create_new_stage_async时，
+    # md，想骂人，load_world_async调用到create_new_stage_async时，
     # 有行 await omni.kit.app.get_app().next_update_async()
     # 运行到这，程序就一动不动，也不报错
     # 我进行搜索，根本就没有next_update_async这个方法，倒是有next_update，不知道是不是版本更新，这个方法被删除，但仍被调用
+    # fuck you nvidia
     # 但为什么不报错？
-    # 我认为不能再用BaseSample类了
+    # md，我认为不能再用BaseSample类了
     # 必须自己实现
     # 应该是可以的，创建world啥的
     # 等待仿真运行，直到仿真结束

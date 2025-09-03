@@ -1,14 +1,3 @@
-# 针对一直遇到的 困扰了很久的 库未发现问题
-# 两种解决方法：
-
-# 1.启动SimulationApp时，config里添加"extra_args": ["--enable", "isaacsim.examples.interactive"]
-
-# 2.在代码中手动启用扩展：
-# from omni.isaac.core.utils.extensions import enable_extension
-# enable_extension("isaacsim.examples.interactive")
-
-
-# pick_place_demo.py
 import isaacsim
 from isaacsim.simulation_app import SimulationApp
 import asyncio
@@ -53,33 +42,153 @@ from isaacsim.core.api.objects import DynamicCuboid, GroundPlane
 from isaacsim.core.api import World
 from isaacsim.core.utils.viewports import set_camera_view
 
+import omni.kit.commands
+from isaacsim.core.prims import XFormPrim
+from pxr import UsdPhysics, Sdf
+
+
+
+
 class FrankaPlaying(BaseTask):
-    def __init__(self, name, offset=None):
+    def __init__(self, name, offset=None, scene_config=None):
         super().__init__(name=name, offset=offset)
         self._goal_position = np.array([-0.3, -0.3, 0.05515/2.0])
         self._task_achieved = False
+        self._scene_config = scene_config
         return
-    # 似乎是必有的方法
-    # 设置任务的场景
+
+    
+    # 在场景中添加urdf物体的方法：
+    # success, prim_path = okc.execute(
+        #     "URDFParseAndImportFile",
+        #     urdf_path=urdf_path,
+        #     import_config=cfg,
+        #     get_articulation_root=True,
+            
+        # )
+    # 得到prim_path后，用类似
+    # prims = XFormPrim(prim_paths_expr="/World" )
+    # scene.add(prims)
+    # 这样来在scene中添加物体
+    
+    # 先实现一个这样的函数：
+    # 给定obj_id，那么
+    # urdf_path = f"/home/szwang/synthesis/data/objaverse/data/obj/{obj_id}/material.urdf"
+    
+    
+    
     def set_up_scene(self, scene):
+        
         super().set_up_scene(scene)
         scene.add_default_ground_plane()
-        self._cube = scene.add(DynamicCuboid(
-            prim_path="/World/random_cube",
-            name="fancy_cube",
-            position=np.array([0.3, 0.3, 0.3]),
-            color=np.array([0.0, 0.0, 1.0]),
-            size=0.05
-        ))
+        # self._cube = scene.add(DynamicCuboid(
+        #     prim_path="/World/random_cube",
+        #     name="fancy_cube",
+        #     position=np.array([0.3, 0.3, 0.3]),
+        #     color=np.array([0.0, 0.0, 1.0]),
+        #     size=0.05
+        # ))
         self._franka = scene.add(Franka(
             prim_path="/World/Fancy_Franka",
             name="fancy_franka"
         ))
+        for i in range(len(self._scene_config["obj_ids"])):
+            obj_id = self._scene_config["obj_ids"][i]
+            position = self._scene_config["positions"][i]
+            scale = self._scene_config["scales"][i]
+            movable = self._scene_config["movables"][i]
+            obj = self.add_objaverse_scene(scene, obj_id, position, scale, movable)
+            if i==0:
+                self._cube = obj
+        self.add_partnet_scene(scene, "4564", [1.3, 0.3, 0.3], [1.0, 1.0, 1.0], True)
         return
+    
+    def add_objaverse_scene(self, scene, obj_id, position, scale, movable):
+        urdf_path = f"/home/szwang/synthesis/data/objaverse/data/obj/{obj_id}/material.urdf"
+        _, cfg = omni.kit.commands.execute("URDFCreateImportConfig")
+        cfg.merge_fixed_joints    = False
+        cfg.convex_decomp         = False
+        cfg.import_inertia_tensor = True
+        cfg.fix_base              = not movable  #这这个目前还有问题
+
+
+        success, prim_path = omni.kit.commands.execute(
+            "URDFParseAndImportFile",
+            urdf_path=urdf_path,
+            import_config=cfg,
+            get_articulation_root=True,
+        )
+
+
+
+        pos = np.asarray(position, dtype=np.float32).reshape(1, 3)
+        
+        if np.isscalar(scale):
+            scl = np.full((1, 3), float(scale), dtype=np.float32)
+        else:
+            scl = np.asarray(scale, dtype=np.float32).reshape(1, 3)
+
+        prims = XFormPrim(
+            prim_paths_expr=prim_path,
+            name=str(obj_id),
+            positions=pos,           # (1,3)
+            translations=None,       # 不要和 positions 同时给
+            scales=scl               # (1,3)
+        )   
+        print("prims")
+        print(prims)
+        
+
+        obj = scene.add(prims)
+        return obj
+    
+    def add_partnet_scene(self, scene, obj_id, position, scale, movable):
+        urdf_path = f"/home/szwang/synthesis/data/dataset/{obj_id}/mobility.urdf"
+        _, cfg = omni.kit.commands.execute("URDFCreateImportConfig")
+        cfg.merge_fixed_joints    = False
+        cfg.convex_decomp         = False
+        cfg.import_inertia_tensor = True
+        cfg.fix_base              = not movable  #这个目前还有问题。
+        cfg.distance_scale       = 1.0
+
+
+        success, prim_path = omni.kit.commands.execute(
+            "URDFParseAndImportFile",
+            urdf_path=urdf_path,
+            import_config=cfg,
+            get_articulation_root=True,
+        )
+
+
+
+        pos = np.asarray(position, dtype=np.float32).reshape(1, 3)
+        
+        if np.isscalar(scale):
+            scl = np.full((1, 3), float(scale), dtype=np.float32)
+        else:
+            scl = np.asarray(scale, dtype=np.float32).reshape(1, 3)
+
+        prims = XFormPrim(
+            prim_paths_expr=prim_path,
+            name=str(obj_id),
+            positions=pos,           # (1,3)
+            translations=None,       # 不要和 positions 同时给
+            scales=scl               # (1,3)
+        )   
+        print("prims")
+        print(prims)
+        
+
+        obj = scene.add(prims)
+        return obj
+    
+    
     #似乎是必有的方法
     # 获取观测值，架起环境状态与控制器的桥梁，使得控制器可以获取到环境状态信息
     def get_observations(self):
-        cube_position, _ = self._cube.get_world_pose()
+        # cube_position, _ = self._cube.get_world_poses()
+        pos_batch, _ = self._cube.get_world_poses()   # (1,3), (1,4)
+        cube_position = pos_batch[0]                  # → (3,)
         current_joint_positions = self._franka.get_joint_positions()
         observations = {
             self._franka.name: {
@@ -95,10 +204,12 @@ class FrankaPlaying(BaseTask):
     # demo._world.step(render=True) 来调用pre_step,渲染每一帧
     # 在有多步控制时，用control index索引来做多步控制策略，确定控制哪一步骤
     def pre_step(self, control_index, simulation_time):
-        cube_position, _ = self._cube.get_world_pose()
+        # cube_position, _ = self._cube.get_world_poses()
+        pos_batch, _ = self._cube.get_world_poses()   # (1,3)
+        cube_position = pos_batch[0]                  # (3,)
         # print(f"Cube Position: {cube_position}, Goal Position: {np.mean(np.abs(self._goal_position - cube_position))}")
         if not self._task_achieved and np.mean(np.abs(self._goal_position - cube_position)) < 0.02:
-            self._cube.get_applied_visual_material().set_color(color=np.array([0, 1.0, 0]))
+            # self._cube.get_applied_visual_material().set_color(color=np.array([0, 1.0, 0]))
             self._task_achieved = True
         return
 
@@ -107,7 +218,7 @@ class FrankaPlaying(BaseTask):
     # 用于仿真重置，任务恢复到初始状态
     def post_reset(self):
         self._franka.gripper.set_joint_positions(self._franka.gripper.joint_opened_positions)
-        self._cube.get_applied_visual_material().set_color(color=np.array([1.0, 0, 0]))
+        # self._cube.get_applied_visual_material().set_color(color=np.array([1.0, 0, 0]))
         self._task_achieved = False
         return
 
@@ -127,7 +238,7 @@ class HelloWorld(BaseSample):
         self._world = World(stage_units_in_meters=1.0)
         world = self.get_world()
         ####!!!!
-        world.add_task(FrankaPlaying(name="my_first_task"))
+        world.add_task(FrankaPlaying(name="my_first_task",scene_config = scene_config))
         world.reset()  # 重置世界状态
         set_camera_view(eye=[1.5, 1.5, 1.5], target=[0.01, 0.01, 0.01], camera_prim_path="/OmniverseKit_Persp")
         return
@@ -163,8 +274,8 @@ class HelloWorld(BaseSample):
         current_observations = self._world.get_observations()
         # 控制器根据当前观测值计算动作
         actions = self._controller.forward(
-            picking_position=current_observations["fancy_cube"]["position"],
-            placing_position=current_observations["fancy_cube"]["goal_position"],
+            picking_position=current_observations["939bce9ccaec4d5ab3404dca172d2f45"]["position"],
+            placing_position=current_observations["939bce9ccaec4d5ab3404dca172d2f45"]["goal_position"],
             current_joint_positions=current_observations["fancy_franka"]["joint_positions"]
         )
     # 检查任务是否完成，如果完成则暂停仿真
@@ -182,6 +293,29 @@ class HelloWorld(BaseSample):
 import asyncio
 
 if __name__ == "__main__":
+    # scene_config是一个字典，包含场景的配置信息，包含的key为obj_ids、positions、scales、movables
+    scene_config = {
+        "obj_ids": [
+            "939bce9ccaec4d5ab3404dca172d2f45",
+            "3729cf312d054b9db8767c934ed13215",
+            "03567b3881dc44a98ff3e6c1d449e32d",
+        ],
+        "positions": [
+            (0.5, 0, 0),
+            (-2, 2, 0),
+            (0, -2, 0),
+        ],
+        "scales": [
+            (0.05, 0.03, 0.2),
+            (2, 2, 2),
+            (1, 1, 1.5),
+        ],
+        "movables": [
+            True,
+            True,
+            True,
+        ]
+    }
     demo = HelloWorld()  # 实例化HelloWorld类
     
     # 使用 asyncio 来运行异步加载世界和设置任务
@@ -194,44 +328,3 @@ if __name__ == "__main__":
         simulation_app.update()  # 更新仿真状态
 
     simulation_app.close()  # 关闭仿真进程
-
-
-
-
-
-
-
-
-
-
-
-
-    # 使用 asyncio 来运行异步加载世界和设置任务
-    # asyncio.run(demo.load_world_async())  # 异步加载世界并设置任务
-    # load_world_async调用到create_new_stage_async时，
-    # 有行 await omni.kit.app.get_app().next_update_async()
-    # 运行到这，程序就一动不动，也不报错
-    # 我进行搜索，根本就没有next_update_async这个方法，倒是有next_update，不知道是不是版本更新，这个方法被删除，但仍被调用
-    # 但为什么不报错？
-    # 我认为不能再用BaseSample类了
-    # 必须自己实现
-    # 应该是可以的，创建world啥的
-    # 等待仿真运行，直到仿真结束
-
-
-
-
-
-    # from isaacsim.core.api import World
-    # my_world = World(stage_units_in_meters=1.0)
-
-    # my_task = FrankaPlaying()
-    # my_world.add_task(my_task)
-    # my_world.reset()
-    # my_franka = my_world.scene.get_object("fancy_robot")
-    # my_controller = PickPlaceController(name="generic_pd_controller", kp=my_task._pd_gains[0], kd=my_task._pd_gains[1])
-    # articulation_controller = my_franka.get_articulation_controller()
-    
-
-
-

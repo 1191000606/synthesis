@@ -36,6 +36,12 @@ def load_urdf_objects(obj_ids, positions=None, scales=None, movables=None):
         urdf_path = f"/home/szwang/synthesis/data/objaverse/data/obj/{obj_id}/material.urdf"
 
 
+        # 这里大概是这样的流程
+        # okc.execute("URDFParseAndImportFile"...
+        # 执行后得到prim_path，这是一个路径，类似/cube03/baseLink03
+        # prim = stage.GetPrimAtPath(prim_path)得到Usd.Prim(</cube03/baseLink03>)，但是我目前还不懂stage是什么，我能不能直接用Usd.Prim来生成prim呢
+        # xform = UsdGeom.Xformable(prim) 将一个 UsdPrim 对象包装成一个可变换（transformable）的几何体 prim，以便进行位置、旋转、缩放等变换操作。
+
         success, prim_path = okc.execute(
             "URDFParseAndImportFile",
             urdf_path=urdf_path,
@@ -62,6 +68,11 @@ def load_urdf_objects(obj_ids, positions=None, scales=None, movables=None):
             continue
 
         prim = stage.GetPrimAtPath(prim_path)
+        print("prim")
+        print(prim)
+        print(prim.GetName())
+        print("prim_path")
+        print(prim_path)
         if not prim.IsValid():
             print(f"[WARNING] prim_path invalid for {obj_id}: {prim_path}")
             continue
@@ -73,6 +84,8 @@ def load_urdf_objects(obj_ids, positions=None, scales=None, movables=None):
 
 
         xform = UsdGeom.Xformable(prim)
+        print("xform")
+        print(xform)
 
         # 设置位置
         for op in xform.GetOrderedXformOps():

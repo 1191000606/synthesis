@@ -2,7 +2,6 @@
 
 
 
---------------------
 from typing import List, Optional
 
 import isaacsim.robot.manipulators.controllers as manipulators_controllers
