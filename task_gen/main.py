@@ -5,10 +5,10 @@ import random
 import time
 import yaml
 
-from prompt import get_task_gen_prompt, get_scene_gen_prompt, get_joint_angle_prompt, get_spatial_relationship_prompt, get_distractor_prompt
-from parse import parse_joint_angle_response, parse_response_to_get_yaml, parse_spatial_relationship_response, parse_task_response
+from prompt import get_task_gen_prompt, get_scene_gen_prompt, get_joint_angle_prompt, get_spatial_relationship_prompt, get_distractor_prompt, get_scale_prompt
+from parse import parse_joint_angle_response, parse_response_to_get_yaml, parse_scale, parse_spatial_relationship_response, parse_task_response
 from llm import llm_generate
-from utils import adjust_size, match_similar_object_from_objaverse, match_similar_object_from_partnet
+from utils import retrieve_object_from_partnet, retrieve_object_from_objaverse
 
 with open("./data/partnet/category.txt", "r") as f:
     partnet_category_list = [line.strip() for line in f.readlines()]
@@ -62,7 +62,15 @@ for task_name, task_description, additional_object, link, joint in zip(*task_att
 
     configs.extend(scene_config)
 
-    adjust_size(configs)
+    adjust_size_prompt = get_scale_prompt(configs)
+    adjust_size_response = llm_generate(adjust_size_prompt)
+    corrected_names, corrected_sizes = parse_scale(adjust_size_response)
+
+    for config in configs:
+        if "name" in config and "size" in config:
+            if config["name"].lower() in corrected_names:
+                index = corrected_names.index(config["name"].lower())
+                config["size"] = corrected_sizes[index]
 
     joint_angle_prompt = get_joint_angle_prompt(task_attr)
     joint_angle_response = llm_generate(joint_angle_prompt)
@@ -81,9 +89,9 @@ for task_name, task_description, additional_object, link, joint in zip(*task_att
     distractor_response = llm_generate(distractor_prompt)
     distractor_config = parse_response_to_get_yaml(distractor_response)
 
-    distractor_config = match_similar_object_from_partnet(distractor_config)
+    distractor_config = retrieve_object_from_partnet(distractor_config)
 
-    distractor_config = match_similar_object_from_objaverse(distractor_config)
+    distractor_config = retrieve_object_from_objaverse(distractor_config)
 
     time_string = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M-%S') # Todo：这里可能后续会有冲突，比如高并发的时候，到时候可以加上一个随机数或者UUID
     save_folder = f"./data/task_config/{object_category}_{object_id}_{time_string}"

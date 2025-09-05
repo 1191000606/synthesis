@@ -1,6 +1,9 @@
 data/partnet/dataset/
+data/partnet/partnet-mobility-v0/
 data/objaverse/cap3d_full_bgem3_embeddings.pkl
 data/objaverse/objaverse_xl.csv
+data/objaverse/dataset/
+data/objaverse/Cap3D_automated_Objaverse_full.csv
 .vscode/
 .idea/
 xml_process/

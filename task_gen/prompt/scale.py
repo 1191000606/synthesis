@@ -1,7 +1,15 @@
-def get_scale_prompt(task_description, object_scales):
+def get_scale_prompt(configs):
+    task_description = ""
     object_scale_str = ""
-    for object_scale in object_scales:
-        object_scale_str += f"{object_scale[0]}, {str(object_scale[1])}\n"
+
+    for config in configs:
+        if "task_description" in config:
+            task_description = config["task_description"]
+            continue
+
+        if "name" in config and "size" in config:
+            object_scale_str += f"{config['name'].lower()}, {str(config['size'])}\n"
+
     object_scale_str = object_scale_str[:-1]
 
     return f"""A robotic arm is trying to manipulate some objects to learn corresponding skills in a simulator. However, the size of the objects might be wrong. Your task is to adjust the size of the objects, such that they match each other when interact with each other; and the size should also match what is commonly seen in everyday life, in household scenarios. 
