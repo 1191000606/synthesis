@@ -1,0 +1,54 @@
+-   asset_path: ./data/objaverse/dataset/b6ff73e4a5054e54a2a7e76d070de4fa
+    center: (0.8, 0.3, 0)
+    lang: a stainless steel butter knife with a smooth handle
+    movable: false
+    name: butter knife
+    on_table: true
+    path: butter_knife.obj
+    size: 0.2
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/25112cad8b76542a953d1f55c626c52b6e69a6e11af753ca84328860155de213
+    center: (0.2, 0.8, 0)
+    lang: a small ceramic dish containing butter
+    movable: false
+    name: butter dish
+    on_table: true
+    path: butter_dish.obj
+    size: 0.12
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/cdad5812971a428499d6813d7f4ff8ea
+    center: (0.6, 0.8, 0)
+    lang: a white ceramic dinner plate
+    movable: false
+    name: plate
+    on_table: true
+    path: plate.obj
+    size: 0.25
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/5951b12d149b4183a0caa032c495c3fb
+    center: (0.9, 0.2, 0)
+    lang: a ceramic coffee mug with handle
+    movable: false
+    name: coffee mug
+    on_table: true
+    path: coffee_mug.obj
+    size: 0.1
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/83492c3bf9b5496aa16306098b188a41
+    center: (2.5, 1.0, 0)
+    lang: a wooden kitchen counter with cabinets
+    movable: false
+    name: kitchen counter
+    on_table: false
+    path: kitchen_counter.obj
+    size: 1.2
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/197785a17620486e9f5d8e5d07ad88f9
+    center: (2.3, 1.8, 0)
+    lang: a wooden bowl containing assorted fruits
+    movable: false
+    name: fruit bowl
+    on_table: false
+    path: fruit_bowl.obj
+    size: 0.3
+    type: mesh

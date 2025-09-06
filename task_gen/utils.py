@@ -9,6 +9,7 @@ from FlagEmbedding import BGEM3FlagModel
 import pandas
 from sentence_transformers import SentenceTransformer, util
 import objaverse
+import objaverse.xl
 import trimesh
 import pybullet as p
 
@@ -88,11 +89,12 @@ def retrieve_object_from_objaverse(distractor_config):
 
         best_uid = objaverse_uids[best_index]
 
-        obj["asset_path"] = f"./data/objaverse/dataset/{best_uid}"
-
         download_path = download_objaverse_object(best_uid)
 
-        process_objaverse_object(best_uid, download_path)
+        process_success = process_objaverse_object(best_uid, download_path)
+
+        if process_success:
+            obj["asset_path"] = f"./data/objaverse/dataset/{best_uid}"
 
     return distractor_config
 
@@ -112,12 +114,16 @@ def download_objaverse_object(uid):
 
         if objaverse_xl_dataframe is None:
             objaverse_xl_dataframe = pandas.read_csv("./data/objaverse/objaverse_xl.csv")
+            
+            # 避免github仓库下载过程中出现交互式提示
+            env = os.environ.copy()
+            env['GIT_TERMINAL_PROMPT'] = '0'
 
         dataframe = objaverse_xl_dataframe[objaverse_xl_dataframe['sha256'] == uid]
 
-        objaverse.xl.download_objects(dataframe, download_processes=2, handle_found_object=handle_found_object)
+        objaverse.xl.download_objects(dataframe, download_processes=1, handle_found_object=handle_found_object)
 
-        download_path = f"{os.path.expanduser('~')}/.objaverse/xl_dataset/{uid}.{dataframe['fileType'][0]}"
+        download_path = f"{os.path.expanduser('~')}/.objaverse/xl_dataset/{uid}.{dataframe['fileType'].iloc[0]}"
     else:
         assert False, f"Invalid Objaverse UID '{uid}'"
 
@@ -125,6 +131,9 @@ def download_objaverse_object(uid):
 
 
 def process_objaverse_object(uid, download_path):
+    if not os.path.exists(download_path):
+        return False
+
     scene = trimesh.load(download_path)
 
     obj_data_dir = f"./data/objaverse/dataset/{uid}"
@@ -140,6 +149,8 @@ def process_objaverse_object(uid, download_path):
     p.vhacd(f"{obj_data_dir}/material_normalized.obj", f"{obj_data_dir}/material_normalized_vhacd.obj", f"{obj_data_dir}/log.txt")
 
     obj_to_urdf(obj_data_dir, scale=1)
+
+    return True
 
 
 def normalize_obj(src_obj_file_path, dst_obj_file_path):
@@ -165,6 +176,9 @@ def normalize_obj(src_obj_file_path, dst_obj_file_path):
 
 def obj_to_urdf(obj_data_dir, scale=1):
     all_files = os.listdir(obj_data_dir)
+
+    # 这里有问题，可能会有多个png文件，多个PNG文件一起放入texture，但只有一个obj，这就会报错。后续如果要解决这个问题，可能需要把obj文件拆分
+    # 或者是不转为urdf，直接用obj文件
     png_file = None
     for x in all_files:
         if x.endswith(".png"):

@@ -1,0 +1,16 @@
+-   task_description: The robotic arm will rotate the lens to adjust the focus of
+        the camera.
+    task_name: Adjust Camera Lens Focus
+-   use_table: true
+-   asset_path: ./data/partnet/dataset/101362
+    center: (0.5, 0.5, 0)
+    lang: a digital camera with adjustable lens
+    movable: false
+    name: Camera
+    on_table: true
+    path: camera.urdf
+    size: '0.25'
+    type: urdf
+-   joint_0: random
+    set_joint_angle_object_name: Camera
+-   spatial_relationships: []

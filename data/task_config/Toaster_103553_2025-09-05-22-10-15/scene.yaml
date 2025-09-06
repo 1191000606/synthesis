@@ -1,0 +1,33 @@
+-   task_description: The robotic arm places bread slices into the toaster slots,
+        pushes down the slider mechanism, and starts the toasting process.
+    task_name: Toast Bread Slices
+-   use_table: true
+-   asset_path: ./data/partnet/dataset/103553
+    center: (0.3, 0.4, 0)
+    lang: a common toaster with two slots
+    movable: false
+    name: Toaster
+    on_table: true
+    path: toaster.urdf
+    size: '0.4'
+    type: urdf
+-   center: (0.7, 0.6, 0)
+    lang: a slice of bread
+    movable: true
+    name: bread_slice_1
+    on_table: true
+    path: bread_slice.obj
+    size: '0.13'
+    type: mesh
+-   center: (0.8, 0.7, 0)
+    lang: a slice of bread
+    movable: true
+    name: bread_slice_2
+    on_table: true
+    path: bread_slice.obj
+    size: '0.13'
+    type: mesh
+-   joint_0: '0'
+    joint_10: '0'
+    set_joint_angle_object_name: Toaster
+-   spatial_relationships: []

@@ -1,0 +1,41 @@
+-   center: (0.3, 0.7, 0)
+    lang: a small plastic lens cap that protects camera lenses when not in use
+    movable: false
+    name: Lens Cap
+    on_table: true
+    path: lens_cap.obj
+    size: 0.06
+    type: mesh
+-   center: (0.7, 0.3, 0)
+    lang: a fabric camera neck strap with metal connectors
+    movable: false
+    name: Camera Strap
+    on_table: true
+    path: camera_strap.obj
+    size: 0.4
+    type: mesh
+-   center: (0.8, 0.6, 0)
+    lang: a small SD memory card for digital cameras
+    movable: false
+    name: Memory Card
+    on_table: true
+    path: memory_card.obj
+    size: 0.03
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/d8cd110822dc4a8f8cf7ab9873692643
+    center: (2.0, 0.8, 0)
+    lang: a collapsible camera tripod with adjustable legs
+    movable: false
+    name: Tripod
+    on_table: false
+    path: tripod.obj
+    size: 1.2
+    type: mesh
+-   center: (0.2, 0.2, 0)
+    lang: a hardcover photography technique book
+    movable: false
+    name: Photography Book
+    on_table: true
+    path: book.obj
+    size: 0.25
+    type: mesh

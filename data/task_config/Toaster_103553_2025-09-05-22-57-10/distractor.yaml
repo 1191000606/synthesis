@@ -1,0 +1,43 @@
+-   asset_path: ./data/objaverse/dataset/4db1f5be40844a5a8127c4db42c28424
+    center: (0.2, 0.8, 0)
+    lang: a small ceramic dish with butter
+    movable: false
+    name: butter_dish
+    on_table: true
+    path: butter_dish.obj
+    size: 0.12
+    type: mesh
+-   asset_path: ./data/partnet/dataset/101236
+    center: (0.8, 0.2, 0)
+    lang: a kitchen knife for spreading butter
+    movable: false
+    name: Knife
+    on_table: true
+    path: knife.obj
+    size: 0.2
+    type: urdf
+-   center: (0.5, 0.9, 0)
+    lang: a ceramic plate for serving toast
+    movable: false
+    name: plate
+    on_table: true
+    path: plate.obj
+    size: 0.18
+    type: mesh
+-   center: (1.5, 0.8, 0)
+    lang: a plastic bread package with remaining bread slices
+    movable: false
+    name: bread_package
+    on_table: false
+    path: bread_package.obj
+    size: 0.25
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/0a814511b21942d297745cff34980ff8
+    center: (0.9, 0.3, 0)
+    lang: a ceramic coffee mug
+    movable: false
+    name: coffee_mug
+    on_table: true
+    path: coffee_mug.obj
+    size: 0.1
+    type: mesh

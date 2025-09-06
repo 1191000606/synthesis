@@ -1,0 +1,42 @@
+-   center: (0.7, 0.3, 0)
+    lang: a small plastic lens cap for camera lens protection
+    movable: false
+    name: Lens Cap
+    on_table: true
+    path: lens_cap.obj
+    size: 0.08
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/e8cd4b2d464147ea91125d1d0f38c1a3
+    center: (0.2, 0.8, 0)
+    lang: a padded camera bag with compartments for lenses and accessories
+    movable: false
+    name: Camera Bag
+    on_table: true
+    path: camera_bag.obj
+    size: 0.4
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/d8cd110822dc4a8f8cf7ab9873692643
+    center: (1.5, 0.8, 0)
+    lang: an adjustable aluminum camera tripod with extendable legs
+    movable: false
+    name: Tripod
+    on_table: false
+    path: tripod.obj
+    size: 1.2
+    type: mesh
+-   center: (0.8, 0.6, 0)
+    lang: a telephoto camera lens with metal housing
+    movable: false
+    name: Extra Lens
+    on_table: true
+    path: camera_lens.obj
+    size: 0.15
+    type: mesh
+-   center: (0.3, 0.3, 0)
+    lang: a small SD memory card for digital cameras
+    movable: false
+    name: Memory Card
+    on_table: true
+    path: memory_card.obj
+    size: 0.03
+    type: mesh

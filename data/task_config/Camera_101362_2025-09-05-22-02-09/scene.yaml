@@ -1,0 +1,15 @@
+-   task_description: The robotic arm will press one of the camera's buttons to capture
+        a photo.
+    task_name: Press Camera Shutter Button
+-   use_table: true
+-   asset_path: ./data/partnet/dataset/101362
+    center: (0.5, 0.5, 0)
+    lang: a digital camera
+    movable: false
+    name: Camera
+    on_table: true
+    path: camera.urdf
+    size: '0.12'
+    type: urdf
+-   set_joint_angle_object_name: Camera
+-   spatial_relationships: []

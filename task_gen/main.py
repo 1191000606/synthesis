@@ -5,8 +5,23 @@ import random
 import time
 import yaml
 
-from prompt import get_task_gen_prompt, get_scene_gen_prompt, get_joint_angle_prompt, get_spatial_relationship_prompt, get_distractor_prompt, get_scale_prompt
-from parse import parse_joint_angle_response, parse_response_to_get_yaml, parse_scale, parse_spatial_relationship_response, parse_task_response
+from prompt import (
+    get_distractor_prompt, 
+    get_joint_angle_prompt, 
+    get_scene_gen_prompt,
+    get_scale_prompt, 
+    get_spatial_relationship_prompt, 
+    get_task_gen_prompt
+)
+
+from parse import ( 
+    parse_joint_angle_response, 
+    parse_response_to_get_yaml, 
+    parse_scale, 
+    parse_spatial_relationship_response, 
+    parse_task_response
+)
+
 from llm import llm_generate
 from utils import retrieve_object_from_partnet, retrieve_object_from_objaverse
 
@@ -93,7 +108,9 @@ for task_name, task_description, additional_object, link, joint in zip(*task_att
 
     distractor_config = retrieve_object_from_objaverse(distractor_config)
 
-    time_string = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M-%S') # Todo：这里可能后续会有冲突，比如高并发的时候，到时候可以加上一个随机数或者UUID
+    # Todo：这里可能后续会有冲突，比如高并发的时候，到时候可以加上一个随机数或者UUID
+    time_string = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M-%S') 
+    
     save_folder = f"./data/task_config/{object_category}_{object_id}_{time_string}"
 
     os.makedirs(save_folder, exist_ok=True)

@@ -1,0 +1,23 @@
+-   task_description: The robotic arm will grasp the chair and roll it on its wheels
+        to position it at a table.
+    task_name: Move Chair to Table
+-   use_table: true
+-   asset_path: ./data/partnet/dataset/39047
+    center: (1.5, 0.5, 0)
+    lang: an office chair with wheels
+    movable: true
+    name: Chair
+    on_table: false
+    path: chair.urdf
+    size: '0.95'
+    type: urdf
+-   center: (0.0, 0.0, 0.3)
+    lang: a wooden dining table
+    movable: false
+    name: Table
+    on_table: false
+    path: table.obj
+    size: '1.5'
+    type: mesh
+-   set_joint_angle_object_name: Chair
+-   spatial_relationships: []

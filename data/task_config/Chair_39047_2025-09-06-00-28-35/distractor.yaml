@@ -1,0 +1,54 @@
+-   asset_path: ./data/objaverse/dataset/6ac56915c7524c3987531a44a40a1337
+    center: (2.0, -0.8, 0.3)
+    lang: a wooden office desk with drawers
+    movable: false
+    name: Desk
+    on_table: false
+    path: desk.obj
+    size: 1.2
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/998d6f7d4c8e41f0b59ca1a6349d231f
+    center: (2.0, -0.8, 0.9)
+    lang: a flat screen computer monitor
+    movable: false
+    name: Computer Monitor
+    on_table: false
+    path: monitor.obj
+    size: 0.6
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/9783f16d36b443cd94bffad3f07be82a
+    center: (-1.2, 1.5, 0.5)
+    lang: a tall wooden bookshelf with multiple shelves
+    movable: false
+    name: Bookshelf
+    on_table: false
+    path: bookshelf.obj
+    size: 1.0
+    type: mesh
+-   asset_path: ./data/partnet/dataset/13491
+    center: (0.8, -1.0, 0.2)
+    lang: a floor lamp with adjustable height
+    movable: false
+    name: Lamp
+    on_table: false
+    path: lamp.obj
+    size: 0.4
+    type: urdf
+-   asset_path: ./data/objaverse/dataset/f6bcf414b20244f593a44484d961006c
+    center: (-0.5, 1.8, 0.35)
+    lang: a potted indoor plant in a decorative pot
+    movable: false
+    name: Plant
+    on_table: false
+    path: plant.obj
+    size: 0.7
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/e386a5697b5b4ee9a2fe37d2b24e9a81
+    center: (0.8, 0.5, 0.01)
+    lang: a rectangular area rug with geometric pattern
+    movable: false
+    name: Rug
+    on_table: false
+    path: rug.obj
+    size: 2.0
+    type: mesh

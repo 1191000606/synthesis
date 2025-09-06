@@ -1,0 +1,53 @@
+-   center: (0.8, 0.2, 0)
+    lang: A ceramic breakfast plate
+    movable: false
+    name: Plate
+    on_table: true
+    path: plate.obj
+    size: 0.15
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/afa1b296b55546c2aade4b39c44b4952
+    center: (0.2, 0.8, 0)
+    lang: A slice of bread ready for toasting
+    movable: false
+    name: Bread Slice
+    on_table: true
+    path: bread_slice.obj
+    size: 0.12
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/a7daa7926b16453fb5be6231fea1ca33
+    center: (0.7, 0.7, 0)
+    lang: A stainless steel butter knife
+    movable: false
+    name: Butter Knife
+    on_table: true
+    path: butter_knife.obj
+    size: 0.2
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/0a814511b21942d297745cff34980ff8
+    center: (0.3, 0.3, 0)
+    lang: A ceramic coffee mug
+    movable: false
+    name: Coffee Mug
+    on_table: true
+    path: coffee_mug.obj
+    size: 0.1
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/0ec78d91f62e484b9c56725429c95022
+    center: (2.5, 1.5, 0)
+    lang: A wooden kitchen counter cabinet
+    movable: false
+    name: Kitchen Counter
+    on_table: false
+    path: kitchen_counter.obj
+    size: 1.0
+    type: mesh
+-   asset_path: ./data/partnet/dataset/12038
+    center: (3.0, 0.0, 0)
+    lang: A standard kitchen refrigerator
+    movable: false
+    name: Refrigerator
+    on_table: false
+    path: refrigerator.obj
+    size: 1.8
+    type: urdf
