@@ -1,0 +1,63 @@
+defaults:
+- single_env
+- _self_
+env:
+  _target_: scalingup.environment.mujoco.table_top.TableTopMujocoEnv
+  obj_instance_configs:
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: true
+    asset_path: /home/szwang/data/scalingup/all_data/asset/a_plush_toy/material_normalized.xml
+    name: plush_toy
+    obj_class: plush_toy
+    euler:
+    - 1.57
+    - 0
+    - 0
+    qpos_range:
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.4
+      upper: 0.4
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.2
+      upper: 0.2
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.1
+      upper: 0.1
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: false
+    asset_path: /home/szwang/data/scalingup/all_data/StorageFurniture/45691b/textured_objs/mobility-material.xml
+    name: StorageFurniture
+    obj_class: StorageFurniture
+    position:
+    - 0.05
+    - 0.85
+    - 0.5
+    euler:
+    - 0
+    - 0
+    - 1.4
+    qpos_range:
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 1.57
+      upper: 1.58
+sampler_config:
+  max_time: 60
+task_sampler:
+  tasks:
+  - _target_: scalingup.utils.tasks.PutObjInContainer
+    obj_link_path: plush_toy/|plush_toy/plush_toy
+    container_link_path: StorageFurniture/|StorageFurniture/StorageFurniture
+    require_close: false
+    desc_template: with the rotation door of storage furniture already opend, place
+      the plush toy inside the storage furniture body(no need to operate the door)

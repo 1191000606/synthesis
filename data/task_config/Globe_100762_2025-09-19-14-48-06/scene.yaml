@@ -1,0 +1,16 @@
+-   task_description: The robotic arm will rotate the globe to a specific orientation
+        for educational demonstration or presentation purposes.
+    task_name: Position Globe for Presentation
+-   use_table: true
+-   asset_path: ./data/partnet/dataset/100762
+    center: (0.5, 0.5, 0)
+    lang: a standard desktop globe with stand
+    movable: false
+    name: Globe
+    on_table: true
+    path: globe.urdf
+    size: '0.6'
+    type: urdf
+-   joint_0: random
+    set_joint_angle_object_name: Globe
+-   spatial_relationships: []

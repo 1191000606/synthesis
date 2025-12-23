@@ -1,0 +1,64 @@
+defaults:
+- single_env
+- _self_
+env:
+  _target_: scalingup.environment.mujoco.table_top.TableTopMujocoEnv
+  obj_instance_configs:
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: true
+    asset_path: /home/szwang/data/scalingup/all_data/asset/a_drinking_glass/material_normalized.xml
+    name: drinking_glass
+    obj_class: drinking_glass
+    euler:
+    - 1.57
+    - 0
+    - 0
+    qpos_range:
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.4
+      upper: 0.4
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.2
+      upper: 0.2
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.1
+      upper: 0.1
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: false
+    asset_path: /home/szwang/data/scalingup/all_data/StorageFurniture/45091b/textured_objs/mobility-material.xml
+    name: StorageFurniture
+    obj_class: StorageFurniture
+    position:
+    - 0.2
+    - 0.9
+    - 0.53
+    euler:
+    - 0
+    - 0
+    - -3.9
+    qpos_range:
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 1.5
+      upper: 1.53
+sampler_config:
+  max_time: 60
+task_sampler:
+  tasks:
+  - _target_: scalingup.utils.tasks.PutObjInContainer
+    obj_link_path: drinking_glass/|drinking_glass/drinking_glass
+    container_link_path: StorageFurniture/|StorageFurniture/StorageFurniture
+    require_close: false
+    desc_template: with the rotation door of storage furniture already opend, place
+      the drinking glass inside the storage furniture body(no need to operate the
+      door)

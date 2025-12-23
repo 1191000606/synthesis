@@ -1,0 +1,45 @@
+-   asset_path: ./data/objaverse/dataset/fe92c3b6abd84ea1ac6004926b925e9f
+    center: (0.3, 0.8, 0)
+    lang: A stack of hardcover books with colorful covers
+    movable: false
+    name: Books
+    on_table: false
+    path: books.obj
+    size: 0.25
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/313f51d7451144cf851f51b1f84b95dc
+    center: (2.0, 1.2, 0)
+    lang: A medium-sized potted plant with green leaves
+    movable: false
+    name: Plant
+    on_table: false
+    path: plant.obj
+    size: 0.6
+    type: mesh
+-   asset_path: ./data/partnet/dataset/14605
+    center: (0.5, 2.0, 0)
+    lang: A modern table lamp with a fabric shade
+    movable: false
+    name: Lamp
+    on_table: false
+    path: lamp.obj
+    size: 0.4
+    type: urdf
+-   asset_path: ./data/objaverse/dataset/cdadbf42a7964b129c122a0c927a7aed
+    center: (2.2, 0.3, 0)
+    lang: A wooden picture frame standing on the floor
+    movable: false
+    name: PictureFrame
+    on_table: false
+    path: picture_frame.obj
+    size: 0.3
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/979f8e8750054329b3ea0576f3e7d73a
+    center: (1.8, 1.8, 0)
+    lang: A small decorative storage box with lid
+    movable: false
+    name: SmallBox
+    on_table: false
+    path: small_box.obj
+    size: 0.2
+    type: mesh

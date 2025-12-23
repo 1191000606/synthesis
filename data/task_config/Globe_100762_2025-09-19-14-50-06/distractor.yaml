@@ -1,0 +1,54 @@
+-   asset_path: ./data/objaverse/dataset/605fd72c8a5847e3b8e0270aacbfd64e
+    center: (0.2, 0.8, 0)
+    lang: a standard wooden pencil with eraser tip
+    movable: false
+    name: Pencil
+    on_table: true
+    path: pencil.obj
+    size: 0.18
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/dff2edd36f334b3bb5c19f187d7cee17
+    center: (0.9, 0.3, 0)
+    lang: a spiral-bound notebook with lined paper
+    movable: false
+    name: Notebook
+    on_table: true
+    path: notebook.obj
+    size: 0.3
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/0b29453835364f39858de181ee5e891f
+    center: (0.1, 0.1, 0)
+    lang: an adjustable desk lamp with metal base
+    movable: false
+    name: DeskLamp
+    on_table: true
+    path: desk_lamp.obj
+    size: 0.35
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/3f94a21284954eb5897cf608d1a617f6
+    center: (-1.5, 0.8, 0)
+    lang: a wooden bookshelf with multiple shelves
+    movable: false
+    name: Bookshelf
+    on_table: false
+    path: bookshelf.obj
+    size: 1.2
+    type: mesh
+-   asset_path: ./data/partnet/dataset/39047
+    center: (0.8, -1.2, 0)
+    lang: an office chair with wheels and adjustable height
+    movable: false
+    name: Chair
+    on_table: false
+    path: office_chair.obj
+    size: 0.9
+    type: urdf
+-   asset_path: ./data/objaverse/dataset/5951b12d149b4183a0caa032c495c3fb
+    center: (0.85, 0.9, 0)
+    lang: a ceramic coffee mug with handle
+    movable: false
+    name: CoffeeMug
+    on_table: true
+    path: coffee_mug.obj
+    size: 0.12
+    type: mesh

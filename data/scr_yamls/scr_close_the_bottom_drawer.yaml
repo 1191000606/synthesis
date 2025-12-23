@@ -1,0 +1,37 @@
+defaults:
+- single_env
+- _self_
+env:
+  _target_: scalingup.environment.mujoco.table_top.TableTopMujocoEnv
+  obj_instance_configs:
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: false
+    asset_path: /home/szwang/data/scalingup/scalingup/environment/mujoco/assets/custom/small_drawer.xml
+    name: drawer
+    obj_class: drawer
+    position:
+    - 0
+    - 0.65
+    - 0.1
+    euler:
+    - 0
+    - 0
+    - -0.628
+    qpos_range:
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0.23
+      lower: 0.23
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+sampler_config:
+  max_time: 60
+task_sampler:
+  tasks:
+  - _target_: scalingup.utils.tasks.CloseObj
+    link_path: drawer/|drawer/drawer|drawer/bottom_drawer|drawer/bottom_drawer_handle
+    desc_template: Close the bottom drawer

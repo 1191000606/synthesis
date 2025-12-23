@@ -1,0 +1,52 @@
+-   center: (0.2, 0.8, 0)
+    lang: A stack of hardcover reference books about geography and world cultures
+    movable: false
+    name: Books
+    on_table: true
+    path: books.obj
+    size: 0.25
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/8657d2c5e7734a1aba0b71abcb0e04ab
+    center: (0.8, 0.2, 0)
+    lang: A wooden pen holder containing various pens and markers
+    movable: false
+    name: Pen Holder
+    on_table: true
+    path: pen_holder.obj
+    size: 0.1
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/46891975d34e48ee8c95378b48180fbe
+    center: (2.0, 1.5, 0)
+    lang: A digital projector on a rolling stand for presentations
+    movable: false
+    name: Projector
+    on_table: false
+    path: projector.obj
+    size: 0.4
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/92b7fe4f00444d22af701f37c8a509c1
+    center: (-1.5, 1.0, 0)
+    lang: A large wall-mounted whiteboard with markers and eraser
+    movable: false
+    name: Whiteboard
+    on_table: false
+    path: whiteboard.obj
+    size: 1.2
+    type: mesh
+-   asset_path: ./data/partnet/dataset/9968
+    center: (0.3, 0.2, 0)
+    lang: A closed laptop computer for presentation control
+    movable: false
+    name: Laptop
+    on_table: true
+    path: laptop.obj
+    size: 0.35
+    type: urdf
+-   center: (0.9, 0.7, 0)
+    lang: A reusable water bottle for the presenter
+    movable: false
+    name: Water Bottle
+    on_table: true
+    path: water_bottle.obj
+    size: 0.08
+    type: mesh

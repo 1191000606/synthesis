@@ -1,0 +1,59 @@
+defaults:
+- single_env
+- _self_
+env:
+  _target_: scalingup.environment.mujoco.table_top.TableTopMujocoEnv
+  obj_instance_configs:
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: true
+    asset_path: /home/szwang/data/scalingup/all_data/asset/box_of_cerealb/material_normalized.xml
+    name: box_of_cereal
+    obj_class: box_of_cereal
+    euler:
+    - 1.57
+    - 0.6
+    - 0
+    qpos_range:
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.4
+      upper: 0.4
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.2
+      upper: 0.2
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.1
+      upper: 0.1
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: false
+    asset_path: /home/szwang/data/scalingup/all_data/bowl/1/material_normalized.xml
+    name: bowl
+    obj_class: bowl
+    position:
+    - 0.4
+    - -0.45
+    - 0.15
+    euler:
+    - 1.57
+    - 0
+    - 0
+    qpos_range: []
+sampler_config:
+  max_time: 60
+task_sampler:
+  tasks:
+  - _target_: scalingup.utils.tasks.PutObjInContainer
+    obj_link_path: box_of_cereal/|box_of_cereal/box_of_cereal
+    container_link_path: bowl/|bowl/bowl
+    require_close: false
+    desc_template: put the box of cereal in the bowl

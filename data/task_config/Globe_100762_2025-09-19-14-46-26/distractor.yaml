@@ -1,0 +1,52 @@
+-   center: (0.8, 0.2, 0)
+    lang: A stack of hardcover books about geography and world cultures
+    movable: false
+    name: Books
+    on_table: true
+    path: books.obj
+    size: 0.25
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/1ff86f28abc34a6e80ea07cea0d4723f
+    center: (0.3, 0.8, 0)
+    lang: A handheld magnifying glass with wooden handle
+    movable: false
+    name: Magnifying Glass
+    on_table: true
+    path: magnifying_glass.obj
+    size: 0.15
+    type: mesh
+-   center: (0.9, 0.9, 0)
+    lang: A classic desk lamp with adjustable arm and shade
+    movable: false
+    name: Desk Lamp
+    on_table: true
+    path: desk_lamp.obj
+    size: 0.3
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/8657d2c5e7734a1aba0b71abcb0e04ab
+    center: (0.1, 0.8, 0)
+    lang: A ceramic pen holder containing various writing instruments
+    movable: false
+    name: Pen Holder
+    on_table: true
+    path: pen_holder.obj
+    size: 0.1
+    type: mesh
+-   asset_path: ./data/partnet/dataset/40890
+    center: (0.8, -0.8, 0)
+    lang: An office chair with wheels and adjustable height
+    movable: false
+    name: Chair
+    on_table: false
+    path: chair.obj
+    size: 0.5
+    type: urdf
+-   asset_path: ./data/objaverse/dataset/939bce9ccaec4d5ab3404dca172d2f45
+    center: (-1.5, 0.5, 0)
+    lang: A wooden bookshelf filled with reference books and atlases
+    movable: false
+    name: Bookshelf
+    on_table: false
+    path: bookshelf.obj
+    size: 1.2
+    type: mesh

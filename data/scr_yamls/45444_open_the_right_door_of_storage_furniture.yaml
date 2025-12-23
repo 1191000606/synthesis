@@ -1,0 +1,35 @@
+defaults:
+- single_env
+- _self_
+env:
+  _target_: scalingup.environment.mujoco.table_top.TableTopMujocoEnv
+  obj_instance_configs:
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: false
+    asset_path: /home/szwang/data/scalingup/all_data/StorageFurniture/45444/textured_objs/mobility-material.xml
+    name: StorageFurniture
+    obj_class: StorageFurniture
+    position:
+    - 0.57
+    - -0.4
+    - 0.45
+    euler:
+    - 0
+    - 0
+    - -0.7
+    qpos_range:
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.1
+      upper: 0.2
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 1.57
+      upper: 1.59
+sampler_config:
+  max_time: 60
+task_sampler:
+  tasks:
+  - _target_: scalingup.utils.tasks.OpenObj
+    link_path: StorageFurniture/|StorageFurniture/StorageFurniture|StorageFurniture/right_door
+    desc_template: open the right door of the storage furniture
+

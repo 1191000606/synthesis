@@ -1,0 +1,44 @@
+-   asset_path: ./data/partnet/dataset/101787
+    center: (0.2, 0.8, 0)
+    lang: A standard ballpoint pen with plastic body
+    movable: false
+    name: Pen
+    on_table: true
+    path: pen.obj
+    size: 0.15
+    type: urdf
+-   center: (0.8, 0.2, 0)
+    lang: A spiral-bound notebook with lined paper pages
+    movable: false
+    name: Notebook
+    on_table: true
+    path: notebook.obj
+    size: 0.25
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/5951b12d149b4183a0caa032c495c3fb
+    center: (0.1, 0.3, 0)
+    lang: A ceramic coffee mug with handle
+    movable: false
+    name: Coffee Mug
+    on_table: true
+    path: coffee_mug.obj
+    size: 0.12
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/1410c9f8dd194675b020d3049fba10f4
+    center: (1.5, 1.8, 0)
+    lang: A stack of hardcover books
+    movable: false
+    name: Books
+    on_table: false
+    path: books.obj
+    size: 0.3
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/0b29453835364f39858de181ee5e891f
+    center: (-0.8, 0.5, 0)
+    lang: An adjustable desk lamp with metal base
+    movable: false
+    name: Desk Lamp
+    on_table: false
+    path: desk_lamp.obj
+    size: 0.4
+    type: mesh

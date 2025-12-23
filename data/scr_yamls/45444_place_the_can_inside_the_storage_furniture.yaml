@@ -1,0 +1,66 @@
+defaults:
+- single_env
+- _self_
+env:
+  _target_: scalingup.environment.mujoco.table_top.TableTopMujocoEnv
+  obj_instance_configs:
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: true
+    asset_path: /home/szwang/data/scalingup/all_data/objaverse/a common can of food/84a60b16c619478096cbfd284cd1414c/material_normalized/material_normalized.xml
+    name: can
+    obj_class: can
+    euler:
+    - 1.57
+    - 0
+    - 0
+    qpos_range:
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.333333333333
+      upper: 0.3333333333333
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.1466666666666666
+      upper: 0.14666666666666667
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.3
+      upper: 0.301
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: false
+    asset_path: /home/szwang/data/scalingup/all_data/StorageFurniture/45444b/textured_objs/mobility-material.xml
+    name: StorageFurniture
+    obj_class: StorageFurniture
+    position:
+    - -0.12
+    - -0.72
+    - 0.45
+    euler:
+    - 0
+    - 0
+    - -2.4
+    qpos_range:
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 1.56
+      upper: 1.57
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 1.56
+      upper: 1.57
+sampler_config:
+  max_time: 60
+task_sampler:
+  tasks:
+  - _target_: scalingup.utils.tasks.PutObjInContainer
+    obj_link_path: can/|can/can
+    container_link_path: StorageFurniture/|StorageFurniture/StorageFurniture
+    require_close: false
+    desc_template: with the rotation door of storage furniture opend, place the can
+      inside the storage furniture(no need to operate the door)

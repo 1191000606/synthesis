@@ -148,12 +148,12 @@ def process_objaverse_object(uid, download_path):
 
     p.vhacd(f"{obj_data_dir}/material_normalized.obj", f"{obj_data_dir}/material_normalized_vhacd.obj", f"{obj_data_dir}/log.txt")
 
-    obj_to_urdf(obj_data_dir, scale=1)
+    obj_to_urdf(obj_data_dir, uid, scale=1)
 
     return True
 
 
-def normalize_obj(src_obj_file_path, dst_obj_file_path):
+def normalize_obj(src_obj_file_path, dst_obj_file_path): # 这里也注意一下，物体是有大有小的，例如书架就比1m大，杯子就比1m小，这里归一化到单位球，后面还得根据需要调整大小
     vertices = []
     with open(src_obj_file_path, "r") as f:
         lines = f.readlines()
@@ -174,34 +174,10 @@ def normalize_obj(src_obj_file_path, dst_obj_file_path):
             f.write(line)
 
 
-def obj_to_urdf(obj_data_dir, scale=1):
-    all_files = os.listdir(obj_data_dir)
-
-    # 这里有问题，可能会有多个png文件，多个PNG文件一起放入texture，但只有一个obj，这就会报错。后续如果要解决这个问题，可能需要把obj文件拆分
-    # 或者是不转为urdf，直接用obj文件
-    png_file = None
-    for x in all_files:
-        if x.endswith(".png"):
-            png_file = x
-            break
-
-    if png_file is not None:
-        material = f"""
-      <material name="texture">
-        <texture filename="{obj_data_dir}/{png_file}"/>
-      </material>"""
-    else:
-        # Todo: 后面颜色也需要注意
-        material = """
-      <material name="yellow">
-        <color rgba="1 1 0.4 1"/>
-      </material>
-        """
-
-    # 这里的面cube.urdf要留心
+def obj_to_urdf(obj_data_dir, uid, scale=1):
     text = f"""<?xml version="1.0" ?>
-<robot name="cube.urdf">
-  <link name="baseLink">
+<robot name="objaverse_{uid}">
+  <link name="baseLink_{uid}">
     <contact>
       <lateral_friction value="1.0"/>
       <rolling_friction value="0.0"/>
@@ -218,15 +194,14 @@ def obj_to_urdf(obj_data_dir, scale=1):
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="{obj_data_dir}/material_normalized.obj" scale="{scale} {scale} {scale}"/>
+        <mesh filename="material_normalized.obj" scale="{scale} {scale} {scale}"/>
       </geometry>
-      {material}
     </visual>
 
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="{obj_data_dir}/material_normalized_vhacd.obj" scale="{scale} {scale} {scale}"/>
+        <mesh filename="material_normalized_vhacd.obj" scale="{scale} {scale} {scale}"/>
       </geometry>
     </collision>
   </link>

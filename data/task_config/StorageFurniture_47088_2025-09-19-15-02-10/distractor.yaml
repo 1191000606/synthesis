@@ -1,0 +1,45 @@
+-   asset_path: ./data/objaverse/dataset/9fce0ef6be9e4cc78aa178aebd471e51
+    center: (0.7, 0.3, 0)
+    lang: A hardcover book with a colorful dust jacket
+    movable: false
+    name: Book
+    on_table: true
+    path: book.obj
+    size: 0.25
+    type: mesh
+-   asset_path: ./data/partnet/dataset/14605
+    center: (0.2, 0.8, 0)
+    lang: A desk lamp with a metal base and adjustable arm
+    movable: false
+    name: Lamp
+    on_table: true
+    path: lamp.obj
+    size: 0.4
+    type: urdf
+-   asset_path: ./data/objaverse/dataset/25ca4c913c1845c5a3c948e2766a3d64
+    center: (2.0, 1.2, 0)
+    lang: A potted houseplant with green leaves in a ceramic pot
+    movable: false
+    name: Plant
+    on_table: false
+    path: plant.obj
+    size: 0.6
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/4c7603e497094ef28f88eb484bbdac3d
+    center: (1.8, 1.8, 1.2)
+    lang: A wooden picture frame hanging on the wall
+    movable: false
+    name: Picture Frame
+    on_table: false
+    path: picture_frame.obj
+    size: 0.3
+    type: mesh
+-   asset_path: ./data/objaverse/dataset/e49aadcdb77e436b88d6bbed03f86665
+    center: (0.4, 0.2, 0)
+    lang: A small decorative wooden box
+    movable: false
+    name: Small Box
+    on_table: true
+    path: small_box.obj
+    size: 0.15
+    type: mesh

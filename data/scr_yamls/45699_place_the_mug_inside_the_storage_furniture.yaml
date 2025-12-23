@@ -1,0 +1,63 @@
+defaults:
+- single_env
+- _self_
+env:
+  _target_: scalingup.environment.mujoco.table_top.TableTopMujocoEnv
+  obj_instance_configs:
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: true
+    asset_path: /home/szwang/data/scalingup/all_data/Microwave_7236_2025-04-11-03-55-47/asset/7fde5a9ac72f49838d6a2814713c7c79/material_normalized/material_normalized.xml
+    name: mug
+    obj_class: mug
+    euler:
+    - 1.57
+    - 0
+    - 0
+    qpos_range:
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.333333333333
+      upper: 0.3333333333333
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.1466666666666666
+      upper: 0.14666666666666667
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.3
+      upper: 0.301
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: false
+    asset_path: /home/szwang/data/scalingup/all_data/StorageFurniture/45699b/textured_objs/mobility-material.xml
+    name: StorageFurniture
+    obj_class: StorageFurniture
+    position:
+    - 0.3
+    - 0.76
+    - 0.42
+    euler:
+    - 0
+    - 0
+    - -4.3
+    qpos_range:
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 1.5
+      upper: 1.53
+sampler_config:
+  max_time: 60
+task_sampler:
+  tasks:
+  - _target_: scalingup.utils.tasks.PutObjInContainer
+    obj_link_path: mug/|mug/mug
+    container_link_path: StorageFurniture/|StorageFurniture/StorageFurniture
+    require_close: false
+    desc_template: with the rotation door of storage furniture opend, place the mug
+      inside the storage furniture

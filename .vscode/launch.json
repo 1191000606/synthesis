@@ -16,7 +16,7 @@
       "program": "${file}",
 
       // 工作目录，通常设为工作区根
-      "cwd": "${workspaceFolder}/task_gen/",
+      "cwd": "${workspaceFolder}",
 
       /* ======== 关键：指定解释器 ======== */
       // 方法一：写死绝对路径（最稳妥）
@@ -29,7 +29,7 @@
       /* ================================= */
 
       // 只调试自己写的代码，库代码不单步
-      "justMyCode": true,
+      "justMyCode": false,
 
       // 调试终端：integratedTerminal / externalTerminal / none
       "console": "integratedTerminal"

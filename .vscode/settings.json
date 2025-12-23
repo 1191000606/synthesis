@@ -5,7 +5,8 @@
         "Franka",
         "partnet",
         "pycache",
-        "urdf"
+        "urdf",
+        "xform"
     ], 
     "editor.rulers": [120],
     "typescript.tsc.autoDetect": "off",

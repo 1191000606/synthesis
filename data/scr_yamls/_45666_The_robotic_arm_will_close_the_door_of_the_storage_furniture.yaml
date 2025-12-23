@@ -1,0 +1,42 @@
+defaults:
+- single_env
+- _self_
+env:
+  _target_: scalingup.environment.mujoco.table_top.TableTopMujocoEnv
+  obj_instance_configs:
+  # - _convert_: all
+  #   _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+  #   add_free_joint: false
+  #   asset_path: /data/scalingup/all_data/StorageFurniture_45699_2025-04-11-13-13-49/asset/7be9e6cbf6e04365a028217a4874730e/material_normalized/material_normalized.xml
+  #   name: DeskLamp
+  #   obj_class: DeskLamp
+  #   position:
+  #   - 0.8
+  #   - 0.06666666666666667
+  #   - 0.1
+  #   qpos_range: []
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: false
+    asset_path: /data/scalingup/all_data/StorageFurniture_45699_2025-04-11-13-13-49/task_Open_Storage_Furniture_Door/45699/textured_objs/mobility-material.xml
+    name: StorageFurniture
+    obj_class: StorageFurniture
+    position:
+    - 0.75
+    - 0.3
+    - 0.3
+    euler:
+    - 0
+    - 0
+    - 1.2
+    qpos_range:
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.5
+      upper: 0.7
+sampler_config:
+  max_time: 60
+task_sampler:
+  tasks:
+  - _target_: scalingup.utils.tasks.CloseObj
+    link_path: StorageFurniture/|StorageFurniture/StorageFurniture|StorageFurniture/rotation_door
+    desc_template: close the door of the storage furniture

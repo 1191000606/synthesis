@@ -1,0 +1,68 @@
+defaults:
+- single_env
+- _self_
+env:
+  _target_: scalingup.environment.mujoco.table_top.TableTopMujocoEnv
+  obj_instance_configs:
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: true
+    asset_path: /home/szwang/data/scalingup/all_data/objaverse/a carton of milk/87e1ed3a6e59459cbf8cf75da77bb587/material_normalized/material_normalized.xml
+    name: milk
+    obj_class: milk
+    euler:
+    - 1.57
+    - 0
+    - 0
+    qpos_range:
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.333333333333
+      upper: 0.3333333333333
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.1466666666666666
+      upper: 0.14666666666666667
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      lower: 0.3
+      upper: 0.301
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+  - _convert_: all
+    _target_: scalingup.environment.mujoco.utils.MujocoObjectInstanceConfig
+    add_free_joint: false
+    asset_path: /home/szwang/data/scalingup/scalingup/environment/mujoco/assets/custom/small_drawer.xml
+    name: drawer
+    obj_class: drawer
+    position:
+    - 0.0
+    - 0.7
+    - 0.05
+    euler:
+    - 0
+    - 0
+    - -0.628
+    qpos_range:
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+    - _target_: scalingup.utils.core.DegreeOfFreedomRange
+      upper: 0
+      lower: 0
+sampler_config:
+  max_time: 60
+task_sampler:
+  tasks:
+  - _target_: scalingup.utils.tasks.PutObjInContainer
+    obj_link_path: milk/|milk/milk
+    container_link_path: drawer/|drawer/drawer|drawer/middle_drawer
+    require_close: true
+    desc_template: move the milk into the middle drawer

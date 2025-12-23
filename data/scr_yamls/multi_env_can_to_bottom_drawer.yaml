@@ -1,0 +1,55 @@
+defaults:
+  - common
+  - _self_  # 确保下面的定义会覆盖继承的内容
+  - scr_open_the_bottom_drawer@scr_open_the_bottom_drawer  # 不使用下划线前缀
+  - scr_move_the_can_in_the_bottom_drawer@scr_move_the_can_in_the_bottom_drawer
+  - scr_put_in_the_can@scr_put_in_the_can
+  - scr_close_the_bottom_drawer@scr_close_the_bottom_drawer
+
+_target_: scalingup.evaluation.base.MultiEnvSimEvaluation
+
+# 使用修改后的命名空间
+# env1: ${.45091_close_the_door_of_storage_furniture.env}
+# env2: ${.Close.env}
+# task_sampler1: ${.45091_close_the_door_of_storage_furniture.task_sampler}
+# task_sampler2: ${.Close.task_sampler}
+
+
+# 显式定义 sampler_config，覆盖继承的冲突配置
+sampler_config:
+  _target_: scalingup.utils.core.EnvSamplerConfig
+  _convert_: all
+  allow_nondeterminism: True
+  done_on_success: True
+  obs_horizon: 2
+  max_time: 60
+  use_all_subtrajectories: False
+  visualization_cam: front
+  visualization_fps: 6
+  visualization_resolution:
+    - 320
+    - 480
+  dump_failed_trajectories: false
+
+# 使用命名空间引用环境和任务采样器
+
+
+env_task_sampler_pairs:
+  - - ${evaluation.scr_open_the_bottom_drawer.env}
+    - ${evaluation.scr_open_the_bottom_drawer.task_sampler}
+  - - ${evaluation.scr_close_the_bottom_drawer.env}
+    - ${evaluation.scr_close_the_bottom_drawer.task_sampler}
+  - - ${evaluation.scr_put_in_the_can.env}
+    - ${evaluation.scr_put_in_the_can.task_sampler}
+  - - ${evaluation.scr_move_the_can_in_the_bottom_drawer.env}
+    - ${evaluation.scr_move_the_can_in_the_bottom_drawer.task_sampler}
+  - - ${evaluation.scr_move_the_can_in_the_bottom_drawer.env}
+    - ${evaluation.scr_move_the_can_in_the_bottom_drawer.task_sampler}
+  - - ${evaluation.scr_move_the_can_in_the_bottom_drawer.env}
+    - ${evaluation.scr_move_the_can_in_the_bottom_drawer.task_sampler}
+
+
+# 必要的配置参数
+num_episodes: 10
+start_episode: 0
+remote: true
