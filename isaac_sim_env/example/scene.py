@@ -45,7 +45,7 @@ def import_urdf(urdf_path, position, orientation, scale, fix_base):
     XFormPrim(
         prim_paths_expr=prim_path,  # 使用正则表达式匹配所有符合条件的prim
         positions=np.array(position).reshape(1, 3),  # 有一个需要区分的参数是transition，transition也是平移，但是transition是相对于父节点的，而position是相对于世界坐标系的
-        orientations=Rotation.from_euler("XYZ", orientation, degrees=True).as_quat(scalar_first=True).reshape(1, 4),  # 四元数表示的旋转，scalar_first=True参数是得到wxyz顺序的四元数，注意from_euler中“XYZ”大写、小写还有区别
+        orientations=Rotation.from_euler("XYZ", orientation, degrees=True).as_quat(scalar_first=True).reshape(1, 4),  # 四元数表示的旋转，scalar_first=True参数是得到wxyz顺序的四元数，注意from_euler中“XYZ”大写、小写还有区别，这里大写表示内旋，小写表示外旋
         # orientations=euler_angles_to_quat(np.array([30, 45, 60]), degrees=True, extrinsic=False).reshape(1, 4) 效果相同
         scales=np.array(scale).reshape(1, 3),
     )

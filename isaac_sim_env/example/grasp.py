@@ -69,6 +69,9 @@ for i in range(grasp_joint_position.shape[0]):
     print("Pregrasp pose:", pregrasp_pose[i].tolist()) # 为了打印出来有逗号分隔
     print("Grasp pose:", grasp_pose[i].tolist())
     
+    # 为什么cuRobo可以进行避障逆运动学求解，还需要进行可行性检测
+    # 目前来看，cuRobo允许机器人与环境有接触，只要接触力为0即可，但这样的接触比较危险，因此还是以碰撞传感器为准进行可行性检测
+    # 上面这个问题可以考虑为IK_config和motion gen config中设置collision_activation_distance=0.01或者0.02，不过这个虽然会让cuRobo规划时让机械臂更远离障碍物，但也猜测也有可能会因此远离抓取物体，所以就还是直接用可行性检查全为True的
     is_feasible, reason = check_feasibility(world, robot, grasp_joint_position[i], pregrasp_joint_position[i], object_id, object_initial_pose, gripper_sensors, arm_sensors)
 
     if is_feasible:

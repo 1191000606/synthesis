@@ -154,7 +154,8 @@ def init_world_config(usd_help, object_id):
     world_config = usd_help.get_obstacles_from_stage(
         only_paths=["/World"],
         reference_prim_path="/World/Franka",
-        ignore_substring=["/World/Franka", "/World/defaultGroundPlane"]
+        # ignore_substring=["/World/Franka", "/World/defaultGroundPlane"] # 忽略地面是不对的，因为地面也是碰撞体
+        ignore_substring=["/World/Franka"]
     )
 
     # world_config = world_config.get_collision_check_world() 没什么必要，world_config中的信息都是碰撞相关
