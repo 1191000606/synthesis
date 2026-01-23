@@ -16,7 +16,6 @@ from curobo.util_file import get_assets_path, get_robot_configs_path, load_yaml
 from curobo.wrap.reacher.ik_solver import IKSolver, IKSolverConfig
 from curobo.wrap.reacher.motion_gen import MotionGen, MotionGenConfig, MotionGenPlanConfig
 
-
 # Standard Library
 import os
 import numpy as np
@@ -140,28 +139,28 @@ def init_ik_solver(robot_config, world_config, tensor_args):
         world_config,
         num_seeds=20,
         tensor_args=tensor_args,
-        collision_cache={"mesh": 5},
+        collision_cache={"mesh": 20},
     )
     ik_solver = IKSolver(ik_config)
     return ik_solver
 
-def init_world_config(usd_help, object_id):
+def set_visuals_collision_instance(object_id):
     stage = omni.usd.get_context().get_stage()
-    collision_mesh_path = f"/World/objaverse_{object_id}/baseLink_{object_id}/collisions"
-    collision_mesh = stage.GetPrimAtPath(collision_mesh_path)
-    collision_mesh.SetInstanceable(False) # 如果不这么做，collisions就会被当作一个完整的实例，usd_help就找不到里面的mesh
 
+    for prim in stage.Traverse():
+        prim_str = str(prim)
+
+        if "World" in prim_str and object_id in prim_str and ("collisions" in prim_str or "visuals" in prim_str):
+            prim.SetInstanceable(False)
+
+def init_world_config(usd_help):
     world_config = usd_help.get_obstacles_from_stage(
         only_paths=["/World"],
         reference_prim_path="/World/Franka",
-        # ignore_substring=["/World/Franka", "/World/defaultGroundPlane"] # 忽略地面是不对的，因为地面也是碰撞体
-        ignore_substring=["/World/Franka"]
+        ignore_substring=["/World/Franka", "visuals"]
     )
 
-    # world_config = world_config.get_collision_check_world() 没什么必要，world_config中的信息都是碰撞相关
-
     return world_config
-
 
 def init_motion_gen(robot_config, world_config, tensor_args):
     motion_gen_config = MotionGenConfig.load_from_robot_config(
@@ -170,8 +169,8 @@ def init_motion_gen(robot_config, world_config, tensor_args):
         tensor_args,
         num_trajopt_seeds=12,
         num_graph_seeds=12,
-        interpolation_dt=0.01,
-        collision_cache={"mesh": 5},
+        interpolation_dt=1/60,
+        collision_cache={"mesh": 20},
         optimize_dt=True,
         trajopt_dt=None,
         trajopt_tsteps=32,

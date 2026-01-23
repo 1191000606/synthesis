@@ -1,14 +1,17 @@
 # Isaac Sim
-from isaacsim.core.prims import XFormPrim
-from isaacsim.core.prims import RigidPrim
-from isaacsim.core.utils.rotations import euler_angles_to_quat
-from pxr import UsdGeom, Usd
+import omni.usd
+from pxr import Usd, UsdGeom
+
+# CuRobo
+from curobo.types.math import Pose
 
 # Standard Library
 import numpy as np
 import trimesh
 from scipy.spatial import KDTree
 from scipy.spatial.transform import Rotation as R
+
+from isaac_sim import IsaacSimCollision
 
 def get_point_cloud_and_normals(prim_list, point_num):
     meshes = []
@@ -68,7 +71,6 @@ def get_point_cloud_and_normals(prim_list, point_num):
     sampled_normals_list = np.vstack(sampled_normals_list)
     
     return sampled_points_list, sampled_normals_list
-
 
 def generate_antipodal_grasp_poses(
     points, 
@@ -204,107 +206,92 @@ def compute_frame_from_contact_pair(p1, p2, n1, n2):
     
     return pose
 
-def is_collision_any(sensors) -> bool:
-    """检查传感器列表中的任何一个是否发生了碰撞"""
-    for sensor in sensors:
-        data = sensor.get_current_frame()
-        # get_current_frame() 返回当前物理步的接触信息
-        if data["in_contact"] and data["force"] > 0.0:
-            return True
-    return False
+def get_grasp_pose(isaac_sim_vars ,curobo_vars, object_id, object_initial_pose, link_name):
+    tensor_args = curobo_vars.tensor_args
+    ik_solver = curobo_vars.ik_solver
 
-def check_dual_finger_contact(gripper_sensors, target_root_path):
-    """
-    检查是否 两个手指 都接触到了目标。
-    """
-    finger_contacts = [False, False]
-    touching_env = False
+    stage = omni.usd.get_context().get_stage()
 
-    for i, sensor in enumerate(gripper_sensors[:2]):
-        data = sensor.get_current_frame()
-        if data["in_contact"] and data["force"] > 0.0:
-            for contact in data["contacts"]:
-                if contact["body0"].startswith(target_root_path) or contact["body1"].startswith(target_root_path):
-                    finger_contacts[i] = True
-                else:
-                    touching_env = True
-        elif data["in_contact"] and data["force"] == 0.0:
-            print("夹爪传感器检测到接触，但接触力为0")
+    prim_list = []
+    for prim in stage.Traverse():
+        prim_str = str(prim)
 
-    # 成功条件：两指都接触目标，且没有接触环境
-    success = finger_contacts[0] and finger_contacts[1] and not touching_env
-    return success
-
-# 求解Collision-free IK的时候，夹爪是打开的，具体可以看https://curobo.org/tutorials/1_robot_configuration.html中Additional Configurations。然后Franka夹爪两个关节的最大张开是0.04m。
-# Collsion-free IK不会控制夹爪，但会将夹爪作为碰撞检测的一部分
-
-def check_feasibility(world, franka, grasp_pose, pregrasp_pose, object_dataset, object_id, object_initial_pose, gripper_sensors, arm_sensors):
-    """
-    执行 Pre-grasp -> Grasp -> Close 的完整检测流水线。
-    """
-    original_joint_positions = franka.get_joint_positions()
-    gripper_open = np.array([0.04, 0.04])
-    gripper_closed = np.array([0.0, 0.0])
-
-    all_robot_sensors = gripper_sensors + arm_sensors
+        if f"/World/partnet_{object_id}/{link_name}_{object_id}/visuals" in prim_str and "mesh" in prim_str:
+            prim_list.append(prim)
     
-    if object_dataset == "objaverse":
-        target_object = XFormPrim(f"/World/objaverse_{object_id}")
-        rigid_target_object= RigidPrim(f"/World/objaverse_{object_id}/baseLink_{object_id}")
-        target_object_path = f"/World/objaverse_{object_id}"
-    elif object_dataset == "partnet":
-        target_object = XFormPrim(f"/World/partnet_{object_id}")
-        rigid_target_object= RigidPrim(f"/World/partnet_{object_id}/base_{object_id}")
-        target_object_path = f"/World/partnet_{object_id}"
+    point_cloud, normals = get_point_cloud_and_normals(prim_list, 4096)
 
-    try:
-        # 预抓取姿态，夹爪打开，不碰到物体与环境
-        franka.set_joint_positions(np.concatenate((pregrasp_pose, gripper_open)), [i for i in range(9)])
+    candidate_list = generate_antipodal_grasp_poses(point_cloud, normals, 300)
 
-        for _ in range(20):
-            world.step(render=True)
+    grasp_position = np.stack([i[0][0] for i in candidate_list])
+    grasp_orientation = np.stack([i[0][1] for i in candidate_list])
+
+    ik_goal = Pose(position=tensor_args.to_device(grasp_position), quaternion=tensor_args.to_device(grasp_orientation))
+    grasp_ik_result = ik_solver.solve_batch(ik_goal)
+
+    pregrasp_position = np.stack([i[1][0] for i in candidate_list])
+    pregrasp_orientation = np.stack([i[1][1] for i in candidate_list])
+
+    ik_goal = Pose(position=tensor_args.to_device(pregrasp_position), quaternion=tensor_args.to_device(pregrasp_orientation))
+    pregrasp_ik_result = ik_solver.solve_batch(ik_goal)
+
+    combined_success = grasp_ik_result.success & pregrasp_ik_result.success
+
+    grasp_joint_position = grasp_ik_result.solution[combined_success].cpu().numpy()
+    pregrasp_joint_position = pregrasp_ik_result.solution[combined_success].cpu().numpy()
+
+    grasp_pose = np.concatenate([grasp_position, grasp_orientation], axis=1)[combined_success.flatten().cpu().numpy()]
+    pregrasp_pose = np.concatenate([pregrasp_position, pregrasp_orientation], axis=1)[combined_success.flatten().cpu().numpy()]
+
+    for i in range(grasp_joint_position.shape[0]):
+        is_feasible, _ = IsaacSimCollision.check_feasibility(isaac_sim_vars, grasp_joint_position[i], pregrasp_joint_position[i], "partnet", object_id, object_initial_pose)
+
+        if is_feasible:
+            return pregrasp_pose[i], grasp_pose[i]
+    
+    return None, None
+
+def compute_arc_trajectory(joint_origin, joint_axis, ee_start_position, ee_start_orientation, rotation_degrees):
+    # 数学公式：
+    # goal_pose = joint_origin + Rotation * (start_pose - joint_origin) 
+    # 首先将点（start_pose）平移到旋转中心（关节原点，joint_origin），然后进行旋转（绕关节轴 joint_axis），然后平移回去
+    # 写成矩阵形式就是（矩阵计算从左到右，矩阵理解含义是从右到左）：
+    # P_goal = T_from_origin * R_axis * T_to_origin * P_start
+    
+    # 起始位置
+    P_start = np.eye(4)
+    P_start[:3, :3] = R.from_quat(ee_start_orientation, scalar_first=True).as_matrix()
+    P_start[:3, 3] = ee_start_position
+
+    # 平移到原点
+    T_to_origin = np.eye(4)
+    T_to_origin[:3, 3] = -joint_origin
+    
+    # 从原点平移回去
+    T_from_origin = np.eye(4)
+    T_from_origin[:3, 3] = joint_origin
+
+    trajectory_points = []
+
+    degree_list = list(range(0, int(rotation_degrees), 3))
+    if degree_list[-1] != rotation_degrees:
+        degree_list.append(rotation_degrees)
+    
+    for angle_degree in degree_list:
+
+        angle_radian = np.radians(angle_degree)
         
-        if is_collision_any(all_robot_sensors):
-            return False, "预抓取姿态出现了碰撞"
-
-        # 抓取姿态，夹爪打开，不碰到物体和环境
-        franka.set_joint_positions(np.concatenate((grasp_pose, gripper_open)), [i for i in range(9)])
-                
-        for _ in range(20):
-            world.step(render=True)
-
-        if is_collision_any(all_robot_sensors):
-            return False, "抓取姿态并且夹爪打开时，出现了碰撞"
-
-        object_position, object_orientation = target_object.get_world_poses()
-        object_position = object_position[0]
-        object_orientation = object_orientation[0]
-
-        if np.linalg.norm(object_position - np.array(object_initial_pose[:3])) > 0.001:
-            return False, "抓取姿态并且夹爪打开时，物体位置发生了变化"
-
-        # 抓取姿态，夹爪闭合，夹爪需要与目标碰撞
-        franka.set_joint_positions(gripper_closed, [7, 8])
+        # 这里的 joint_axis 必须是归一化的
+        rotation_vector = joint_axis * angle_radian
+        rotation_matrix = R.from_rotvec(rotation_vector).as_matrix()
         
-        for _ in range(60):
-            world.step(render=True)
-
-        if not check_dual_finger_contact(gripper_sensors, target_object_path):
-            return False, "夹爪闭合后，双指没有同时接触到目标物体"
-
-        return True, "抓取动作可行"
-    finally:
-        franka.set_joint_positions(original_joint_positions)
+        R_step = np.eye(4)
+        R_step[:3, :3] = rotation_matrix
         
-        rigid_target_object.set_world_poses(
-            positions=np.array([object_initial_pose[:3]]), 
-            orientations=euler_angles_to_quat(np.array(object_initial_pose[3:]), degrees=True, extrinsic=False).reshape(1, 4)
-        )
+        P_goal = T_from_origin @ R_step @ T_to_origin @ P_start
 
-        rigid_target_object.set_linear_velocities(velocities=np.array([[0.0, 0.0, 0.0]]))
-        rigid_target_object.set_angular_velocities(velocities=np.array([[0.0, 0.0, 0.0]]))
+        trajectory_point = (P_goal[:3, 3], R.from_matrix(P_goal[:3, :3]).as_quat(scalar_first=True))
+
+        trajectory_points.append(trajectory_point)
         
-        franka.set_joint_positions(original_joint_positions)
-
-        for _ in range(20):
-            world.step(render=True)
+    return trajectory_points
