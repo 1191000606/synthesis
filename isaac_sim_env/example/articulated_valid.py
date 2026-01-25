@@ -8,6 +8,7 @@ from curobo.util.usd_helper import UsdHelper
 from curobo.types.base import TensorDeviceType
 from curobo.types.math import Pose
 
+from isaacsim.core.prims import Articulation
 from isaacsim.core.utils.types import ArticulationAction
 
 import numpy as np
@@ -115,10 +116,6 @@ class Task:
                 "event_params": {},
             },
             {
-                "event_type": "attach_grasped_object",
-                "event_params": {},
-            },
-            {
                 "event_type": "rotate_link",
                 "event_params": {
                     "link_name": "link_0",
@@ -182,31 +179,6 @@ class Task:
         for _ in range(20):
             self.world.step(render=True)
 
-    # for motion_gen
-    def attach_grasped_object(self):
-        curobo_joint_state = get_robot_joint_state(self.robot, self.tensor_args, self.motion_gen, velocity_zero=True)
-
-        # world_config里面的物体name就是prim_path
-        object_names = []
-        for mesh in self.world_config.mesh:
-            if self.object_id in mesh.name and "link_0" in mesh.name:
-                object_names.append(mesh.name)
-
-        success = self.motion_gen.attach_objects_to_robot(
-            joint_state=curobo_joint_state,
-            object_names=object_names,
-            surface_sphere_radius=0.001,
-            link_name="attached_object",
-            remove_obstacles_from_world_config=False,
-        ) # ik_solver的attach不支持传入物体名称，需要传入球体位置
-
-        if success:
-            print("Object attached successfully!")
-        else:
-            exit(1)
-            print("Failed to attach object.")
-
-
     def move_end_effector(self, target_position, target_orientation):
         ik_goal = Pose(
             position=self.tensor_args.to_device(target_position),
@@ -241,6 +213,11 @@ class Task:
             self.world.step(render=True)
 
     def rotate_link(self, link_name):
+        # 两种方案，任选其一
+        # self.rotate_link_by_seq_seed_ik(link_name)
+        self.rotate_link_by_receding_horizon(link_name)
+
+    def rotate_link_by_seq_seed_ik(self, link_name):
         joint_name = self.link_parent_joint_map[f"{link_name}_{self.object_id}"]
         joint_info = get_joint_info(self.object_id, joint_name)
 
@@ -320,62 +297,136 @@ class Task:
                 self.articulation_controller.apply_action(action)
                 self.world.step(render=True)
 
-# def control_arc_trajectory_receding_horizon(self, trajectory_points):
-#         points_num = len(trajectory_points)
+    def rotate_link_by_receding_horizon(self, link_name):
+        joint_name = self.link_parent_joint_map[f"{link_name}_{self.object_id}"]
+        joint_info = get_joint_info(self.object_id, joint_name)
 
-#         i = 0
+        # 降低物体关节的刚度
+        soft_joint_drive(self.object_id, joint_name) 
 
-#         while i < points_num - 1:
-#             robot_joint_state = self.robot.get_joints_state()
-#             cu_js = JointState(
-#                 position=self.tensor_args.to_device(robot_joint_state.positions),
-#                 velocity=self.tensor_args.to_device(robot_joint_state.velocities),
-#                 acceleration=self.tensor_args.to_device(robot_joint_state.velocities) * 0.0,
-#                 jerk=self.tensor_args.to_device(robot_joint_state.velocities) * 0.0,
-#                 joint_names=self.robot.dof_names,
-#             )
-#             cu_js = cu_js.get_ordered_joint_state(self.motion_gen.kinematics.joint_names)
+        curobo_joint_state = get_robot_joint_state(self.robot, self.tensor_args, self.motion_gen, velocity_zero=True)
+        fk_result = self.ik_solver.fk(curobo_joint_state.position)
+        ee_position = fk_result.ee_position[0].detach().cpu().numpy()
+        ee_orientation = fk_result.ee_quaternion[0].detach().cpu().numpy()
 
-#             result = None
-#             for K in [4, 2, 1]:
-#                 goal_i = min(i + K, points_num - 1)
-#                 pos, quat = trajectory_points[goal_i]
-#                 ik_goal = Pose(
-#                     position=self.tensor_args.to_device(pos).unsqueeze(0),
-#                     quaternion=self.tensor_args.to_device(quat).unsqueeze(0),
-#                 )
+        trajectory_points = compute_arc_trajectory(
+            joint_origin=joint_info["joint_origin"],
+            joint_axis=joint_info["joint_axis"],
+            ee_start_position=ee_position,
+            ee_start_orientation=ee_orientation,
+            rotation_degrees=joint_info["upper_limit"] - joint_info["current_value"]
+        )
 
-#                 r = self.motion_gen.plan_single(cu_js.unsqueeze(0), ik_goal, self.plan_config)
+        # # motion_gen的attach函数内有一条语句是取消attach的物体link的碰撞体
+        # object_names = []
+        # for mesh in self.world_config.mesh:
+        #     if self.object_id in mesh.name and link_name in mesh.name:
+        #         object_names.append(mesh.name)
 
-#                 if r.success.item():
-#                     result = r
-#                     break
+        # attach_success = self.motion_gen.attach_objects_to_robot(
+        #     joint_state=curobo_joint_state,
+        #     object_names=object_names,
+        #     surface_sphere_radius=0.001,
+        #     link_name="attached_object",
+        #     remove_obstacles_from_world_config=False,
+        # )
 
-#             if result is None:
-#                 print(f"Arc trajectory control with receding_horizon planning failed at i={i}")
-#                 return False
+        # if not attach_success:
+        #     assert False, "Failed to attach object to motion_gen for rotate_link"
+        
+        # # 由于把一部分link attach到机器人上了，而attach link与物体其他部分距离太近，所以也得取消attach
+        # obstacle_name = []
+        # for mesh in self.world_config.mesh:
+        #     if self.object_id in mesh.name and link_name not in mesh.name:
+        #         obstacle_name.append(mesh.name)
 
-#             cmd_plan = result.get_interpolated_plan()
+        # for name in obstacle_name:
+        #     self.motion_gen.world_coll_checker.enable_obstacle(enable=False, name=name)
 
-#             step_num = max(1, int(len(cmd_plan.position) * 0.5))
+        # 上面的代码是先将待操作link attach到机器人上（motion gen attach函数实现中有一行是取消link的碰撞体），然后由于attach的物体link和
+        # 物体其他部分距离太近，会导致碰撞（修改collision_sphere_buffer也不起作用），因此物体剩下的部分也要取消碰撞体。
+        # 因此，一种更直接的方式是直接取消待操作物体link的碰撞体，不attach到motion gen上，以免进一步取消其他部分的碰撞体
+        for mesh in self.world_config.mesh:
+            if self.object_id in mesh.name and link_name in mesh.name:
+                self.motion_gen.world_coll_checker.enable_obstacle(enable=False, name=mesh.name)
 
-#             for t in range(step_num):
-#                 cmd_state = cmd_plan[t]
-#                 action = ArticulationAction(
-#                     joint_positions=cmd_state.position.cpu().numpy(),
-#                     joint_velocities=None,
-#                     joint_indices=list(range(7)),
-#                 )
-#                 self.articulation_controller.apply_action(action)
-#                 self.world.step(render=True)
+        start_angle = joint_info["current_value"]
 
-#             theta_now = float(self.target_object.get_joint_positions()[self.joint_dof_index])
-#             new_index =  int((theta_now - self.start_radian) / np.pi * 180.0 / 3.0)
+        target_object = Articulation(f"/World/partnet_{self.object_id}")
+        joint_index = target_object.get_dof_index(joint_name)
 
-#             i = new_index
+        points_num = len(trajectory_points)
 
-#         return True
+        point_index = 0
+        finish_all = False
+
+        while point_index < points_num - 1:
+            print(f"Progress {point_index}/{points_num}")
+
+            curobo_joint_state = get_robot_joint_state(self.robot, self.tensor_args, self.motion_gen, velocity_zero=False)
+
+            result = None
+            for window_size in [6, 4, 2, 1]:
+                goal_index = min(point_index + window_size, points_num - 1)
+                pos, quat = trajectory_points[goal_index]
+                ik_goal = Pose(
+                    position=self.tensor_args.to_device(pos).unsqueeze(0),
+                    quaternion=self.tensor_args.to_device(quat).unsqueeze(0),
+                )
+
+                r = self.motion_gen.plan_single(curobo_joint_state.unsqueeze(0), ik_goal, self.plan_config)
+
+                if r.success.item():
+                    result = r
+                    if goal_index == points_num - 1:
+                        finish_all = True
+                    break
+
+            if result is None:
+                if point_index == 0:
+                    print("Arc trajectory control with receding_horizon planning failed at the beginning.")
+                else:
+                    print(f"Arc trajectory control with receding_horizon planning stopped at index={point_index}")
+                    for step_rest in range(step_index, len(cmd_plan.position)):
+                        cmd_state = cmd_plan[step_rest]
+                        action = ArticulationAction(
+                            joint_positions=cmd_state.position.cpu().numpy(),
+                            joint_velocities=None,
+                            joint_indices=list(range(7)),
+                        )
+                        self.articulation_controller.apply_action(action)
+                        self.world.step(render=True)
+                    return
+
+            cmd_plan = result.get_interpolated_plan()
+
+            if not finish_all:
+                step_num = max(1, int(len(cmd_plan.position) * 0.8))
+            else:
+                step_num = len(cmd_plan.position)
+
+            for step_index in range(step_num):
+                cmd_state = cmd_plan[step_index]
+                action = ArticulationAction(
+                    joint_positions=cmd_state.position.cpu().numpy(),
+                    joint_velocities=None,
+                    joint_indices=list(range(7)),
+                )
+                self.articulation_controller.apply_action(action)
+                self.world.step(render=True)
+
+            if finish_all:
+                print("Finished all trajectory points.")
+                return
+
+            current_angle = target_object.get_joint_positions()[joint_index].item() / np.pi * 180
+            point_index = round((current_angle - start_angle) / 3.0)
+
+        print("Finished all trajectory points.")
+        return
 
 task = Task()
 task.task_plan()
 task.run_task()
+
+
