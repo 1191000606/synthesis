@@ -133,6 +133,7 @@ def init_sensor():
 
     return gripper_sensors, arm_sensors
 
+
 def init_ik_solver(robot_config, world_config, tensor_args):
     ik_config = IKSolverConfig.load_from_robot_config(
         robot_config,

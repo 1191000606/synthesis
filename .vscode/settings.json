@@ -3,8 +3,11 @@
     "cSpell.words": [
         "distractor",
         "Franka",
+        "leftfinger",
         "partnet",
         "pycache",
+        "rightfinger",
+        "trajopt",
         "urdf",
         "xform"
     ], 
