@@ -2,7 +2,7 @@ from isaacsim import SimulationApp
 simulation_app = SimulationApp({"headless": False})
 
 from grasp_init import init_robot, init_sensor, init_world, init_motion_gen, init_ik_solver, import_urdf, init_world_config, set_visuals_collision_instance
-from articulated_utils import parse_topology_map, get_joint_info, compute_arc_trajectory, compute_linear_trajectory, get_robot_joint_state, soft_joint_drive, ik_solver_attach_object, set_drive_parameters
+from articulated_utils import parse_topology_map, get_joint_info, compute_arc_trajectory, compute_linear_trajectory, get_robot_joint_state, ik_solver_attach_object, set_drive_parameters
 
 from curobo.util.usd_helper import UsdHelper
 from curobo.types.base import TensorDeviceType
@@ -34,16 +34,16 @@ class Task:
             self.world.scene.add(sensor)
             sensor.add_raw_contact_data_to_frame()
 
-        # self.object_id = "99e55a6a9ab18d31cc9c4c1909a0f80"
-        # object_index = "148"
-        # urdf_path = f"./data/partnet/dataset/{object_index}/mobility.urdf"
-
-        self.object_id = "6c04c2eac973936523c841f9d5051936"
-        object_index = "8736"
+        # 旋转关节
+        self.object_id = "99e55a6a9ab18d31cc9c4c1909a0f80"
+        object_index = "148"
         urdf_path = f"./data/partnet/dataset/{object_index}/mobility.urdf"
+        object_pose = (0.6, 0, 0.2, 0, 0, 135)
+        scale = (0.4, 0.4, 0.4)
+        fix_base = True
 
         self.link_parent_joint_map = parse_topology_map(urdf_path)
-        import_urdf(urdf_path, (0.7, 0, 0.38), (0, 0, 75), (0.4, 0.4, 0.4), True)
+        import_urdf(urdf_path, object_pose[:3], object_pose[3:], scale, fix_base)
         set_visuals_collision_instance(self.object_id)
 
         # 让抓取的渲染仿真更清晰一些
@@ -86,23 +86,24 @@ class Task:
         print("Initialization complete.")
 
     def task_plan(self):
+        # 旋转关节，针对partnet物体148，位置为(0.6, 0, 0.2, 0, 0, 135)，大小为(0.4, 0.4, 0.4)
         pregrasp_pose = [
-            0.4601010850457249,
-            -0.02325492042558976,
-            0.8592412552919655,
-            0.2523485587625774,
-            -0.6786435923620786,
-            0.6808788176374697,
-            -0.11030464690548723
+            0.5269468797724133,
+            -0.013517422630286505,
+            0.5177520006511356,
+            -0.15078891027186506,
+            0.978497653035146,
+            -0.12547612047485215,
+            0.06372433392601977
         ]
         grasp_pose = [
-            0.5094363510763157,
-            -0.004024793449369388,
-            0.7744106373396643,
-            0.2523485587625774,
-            -0.6786435923620786,
-            0.6808788176374697,
-            -0.11030464690548723
+            0.5432017835042898,
+            0.014392719890486731,
+            0.42311161789019386,
+            -0.15078891027186506,
+            0.978497653035146,
+            -0.12547612047485215,
+            0.06372433392601977
         ]
 
         self.event_list = [
@@ -144,19 +145,11 @@ class Task:
                 "event_type": "wait_robot_inertia_settle",
                 "event_params": {},
             },
-            # {
-            #     "event_type": "wait",
-            #     "event_params": {"steps": 10000},
-            # },
             {
-                "event_type": "translate_link",
+                "event_type": "rotate_link",
                 "event_params": {
                     "link_name": "link_0",
                 },
-            },
-            {
-                "event_type": "endless_run",
-                "event_params": {},
             }
         ]
 
@@ -247,83 +240,6 @@ class Task:
 
             self.world.step(render=True)
 
-    def translate_link(self, link_name):
-        # 两种方案，任选其一
-        self.translate_link_by_seq_seed_ik(link_name)
-        # self.translate_link_by_receding_horizon(link_name)
-
-    def translate_link_by_seq_seed_ik(self, link_name):
-        joint_name = self.link_parent_joint_map[f"{link_name}_{self.object_id}"]
-        joint_info = get_joint_info(self.object_id, joint_name)
-
-        # 降低物体关节的刚度，提高link的摩擦力
-        set_drive_parameters(f"/World/partnet_{self.object_id}/joints/{joint_name}", 0, 0.5, 0.1)
-        GeometryPrim(f"/World/partnet_{self.object_id}/{link_name}_{self.object_id}/collisions").apply_physics_materials(self.friction_material)
-
-        curobo_joint_state = get_robot_joint_state(self.robot, self.tensor_args, self.motion_gen, velocity_zero=True)
-        fk_result = self.ik_solver.fk(curobo_joint_state.position)
-        ee_position = fk_result.ee_position[0].detach().cpu().numpy()
-        ee_orientation = fk_result.ee_quaternion[0].detach().cpu().numpy()
-
-        trajectory_points = compute_linear_trajectory(
-            joint_axis=joint_info["joint_axis"],
-            ee_start_position=ee_position,
-            ee_start_orientation=ee_orientation,
-            translation_distance=joint_info["upper_limit"] - joint_info["current_value"]
-        )
-
-        # 取消碰撞体，避免IK规划的时候被夹爪上物体干扰
-        obstacle_names = []
-        for mesh in self.world_config.mesh:
-            if self.object_id in mesh.name and link_name in mesh.name:
-                obstacle_names.append(mesh.name)
-        
-        for name in obstacle_names:
-            self.ik_solver.world_coll_checker.enable_obstacle(enable=False, name=name)
-
-        seed_position = self.tensor_args.to_device(curobo_joint_state.position)
-
-        solved_joint_positions = []
-
-        for i, (pos, quat) in enumerate(trajectory_points):
-            # 构造目标 Pose
-            ik_goal = Pose(
-                position=self.tensor_args.to_device(pos).unsqueeze(0),
-                quaternion=self.tensor_args.to_device(quat).unsqueeze(0),
-            )
-            
-            # 调用 IK
-            result = self.ik_solver.solve_single(
-                goal_pose=ik_goal,
-                retract_config=seed_position.unsqueeze(1),              # 形状 (1, dof)，用于正则化，拉住解不让它乱跑
-                seed_config=seed_position.unsqueeze(1).unsqueeze(1),    # 形状 (1, 1, dof)，作为优化的初始猜测值
-                num_seeds=1,                                            # 只使用这1个种子，不额外生成随机种子
-                return_seeds=1
-            )
-
-            if not result.success.item():
-                print(f"IK failed at point {i}")
-                # 简单的错误处理：复用上一个点，或者报错停止
-                break
-            
-            # 更新 seed 为当前解，供下一次循环使用
-            seed_position = result.solution[0][0]
-            
-            solved_joint_positions.append(seed_position.cpu().numpy())
-
-        for joint_target in solved_joint_positions:
-            # 因为ik_solver不接受频率参数，所以需要自己控制每个轨迹点执行的步数
-            steps_per_waypoint = 3
-            
-            action = ArticulationAction(
-                joint_positions=np.concatenate([joint_target, np.array([0.0, 0.0])]),
-                joint_indices=[k for k in range(9)]
-            )
-            
-            for _ in range(steps_per_waypoint):
-                self.articulation_controller.apply_action(action)
-                self.world.step(render=True)
-
     def rotate_link(self, link_name):
         # 两种方案，任选其一
         # self.rotate_link_by_seq_seed_ik(link_name)
@@ -333,8 +249,9 @@ class Task:
         joint_name = self.link_parent_joint_map[f"{link_name}_{self.object_id}"]
         joint_info = get_joint_info(self.object_id, joint_name)
 
-        # 降低物体关节的刚度
-        soft_joint_drive(self.object_id, joint_name)
+        # 降低物体关节的刚度，增加物体材质摩擦
+        set_drive_parameters(f"/World/partnet_{self.object_id}/joints/{joint_name}", 0, 0.5, 5)
+        GeometryPrim(f"/World/partnet_{self.object_id}/{link_name}_{self.object_id}/collisions").apply_physics_materials(self.friction_material)
 
         curobo_joint_state = get_robot_joint_state(self.robot, self.tensor_args, self.motion_gen, velocity_zero=True)
         fk_result = self.ik_solver.fk(curobo_joint_state.position)
@@ -413,8 +330,9 @@ class Task:
         joint_name = self.link_parent_joint_map[f"{link_name}_{self.object_id}"]
         joint_info = get_joint_info(self.object_id, joint_name)
 
-        # 降低物体关节的刚度
-        soft_joint_drive(self.object_id, joint_name) 
+        # 降低物体关节的刚度，增加物体材质摩擦
+        set_drive_parameters(f"/World/partnet_{self.object_id}/joints/{joint_name}", 0, 0.5, 5)
+        GeometryPrim(f"/World/partnet_{self.object_id}/{link_name}_{self.object_id}/collisions").apply_physics_materials(self.friction_material)
 
         curobo_joint_state = get_robot_joint_state(self.robot, self.tensor_args, self.motion_gen, velocity_zero=True)
         fk_result = self.ik_solver.fk(curobo_joint_state.position)

@@ -131,7 +131,6 @@ def compute_arc_trajectory(joint_origin, joint_axis, ee_start_position, ee_start
         degree_list.append(rotation_degrees)
     
     for angle_degree in degree_list:
-
         angle_radian = np.radians(angle_degree)
         
         # 这里的 joint_axis 必须是归一化的
@@ -175,24 +174,6 @@ def set_drive_parameters(joint_prim_path, stiffness, damping, maxforce):
         drive_type = "angular"
     elif joint_prim.IsA(UsdPhysics.PrismaticJoint):
         drive_type = "linear"
-    else:
-        assert False, "Unsupported joint type"
-
-    drive = UsdPhysics.DriveAPI.Get(joint_prim, drive_type)
-    drive.GetStiffnessAttr().Set(stiffness)
-    drive.GetDampingAttr().Set(damping)
-    drive.GetMaxForceAttr().Set(maxforce)
-
-def soft_joint_drive(object_id, joint_name):
-    stage = omni.usd.get_context().get_stage()
-    joint_prim = stage.GetPrimAtPath(f"/World/partnet_{object_id}/joints/{joint_name}")
-
-    if joint_prim.IsA(UsdPhysics.RevoluteJoint):
-        drive_type = "angular"
-        stiffness, damping, maxforce = 0, 0.5, 5
-    elif joint_prim.IsA(UsdPhysics.PrismaticJoint):
-        drive_type = "linear"
-        stiffness, damping, maxforce = 0, 0.5, 0
     else:
         assert False, "Unsupported joint type"
 

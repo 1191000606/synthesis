@@ -2,6 +2,7 @@ from isaacsim import SimulationApp
 simulation_app = SimulationApp({"headless": False})
 
 from grasp_init import init_robot, init_sensor, init_world, init_motion_gen, import_urdf, init_world_config, set_visuals_collision_instance
+from articulated_utils import set_drive_parameters
 
 from curobo.util.usd_helper import UsdHelper
 from curobo.types.base import TensorDeviceType
@@ -9,6 +10,9 @@ from curobo.types.math import Pose
 from curobo.types.state import JointState
 
 from isaacsim.core.utils.types import ArticulationAction
+from isaacsim.core.api.materials import PhysicsMaterial
+from isaacsim.core.prims import GeometryPrim
+
 
 import numpy as np
 
@@ -31,30 +35,30 @@ class Task:
             self.world.scene.add(sensor)
             sensor.add_raw_contact_data_to_frame()
 
-        # object_dataset = "objaverse"
+        # # 来自objaverse的刚性物体
         # self.object_id = "0a814511b21942d297745cff34980ff8"
         # urdf_path = f"./data/objaverse/dataset/{self.object_id}/material.urdf"
-        # import_urdf(urdf_path, (0.5, 0, 0.1), (-90, 60, 180), (0.2, 0.2, 0.2), False)
+        # object_pose = (0.5, 0, 0.1, -90, 60, 180)
+        # scale = (0.2, 0.2, 0.2)
+        # fix_base = False
 
-        # object_dataset = "partnet"
+        # # 来自partnet的铰接物体，具备旋转关节
         # self.object_id = "99e55a6a9ab18d31cc9c4c1909a0f80"
         # object_index = "148"
         # urdf_path = f"./data/partnet/dataset/{object_index}/mobility.urdf"
-        # import_urdf(urdf_path, (0.6, 0, 0.2), (0, 0, 135), (0.4, 0.4, 0.4), True)
-        # set_visuals_collision_instance(self.object_id)
+        # object_pose = (0.6, 0, 0.2, 0, 0, 135)
+        # scale = (0.4, 0.4, 0.4)
+        # fix_base = True
 
-        # object_dataset = "partnet"
-        # self.object_id = "7b98e7b25bb83413c59350d819542ec7"
-        # object_index = "46981"
-        # urdf_path = f"./data/partnet/dataset/{object_index}/mobility.urdf"
-        # import_urdf(urdf_path, (0.6, 0.0, 0.3), (0, 0, 0), (0.4, 0.4, 0.4), True)
-        # set_visuals_collision_instance(self.object_id)
-
-        object_dataset = "partnet"
+        # # 来自partnet的铰接物体，具备平移关节
         self.object_id = "6c04c2eac973936523c841f9d5051936"
         object_index = "8736"
         urdf_path = f"./data/partnet/dataset/{object_index}/mobility.urdf"
-        import_urdf(urdf_path, (0.7, 0, 0.38), (0, 0, 75), (0.4, 0.4, 0.4), True)
+        object_pose = (0.7, 0, 0.38, 0, 0, 75)
+        scale = (0.4, 0.4, 0.4)
+        fix_base = True
+
+        import_urdf(urdf_path, object_pose[:3], object_pose[3:], scale, fix_base)
         set_visuals_collision_instance(self.object_id)
         
         # 让抓取的渲染仿真更清晰一些
@@ -62,12 +66,28 @@ class Task:
         self.robot.set_solver_position_iteration_count(124)
         self.world._physics_context.set_solver_type("TGS")
  
+        # 调整夹爪的stiffness等参数，通过articulation_controller.set_gains的方式无法设置maxforce
+        set_drive_parameters("/World/Franka/joints/panda_finger_joint1", 62500, 1, 500)
+        set_drive_parameters("/World/Franka/joints/panda_finger_joint2", 62500, 1, 500)
+
+        self.friction_material = PhysicsMaterial(
+            prim_path="/World/Physics_Materials/friction_material",
+            static_friction=4.3,
+            dynamic_friction=4.3,
+            restitution=0.2,
+        )
+
+        GeometryPrim("/World/Franka/panda_leftfinger/collisions").apply_physics_materials(self.friction_material)
+        GeometryPrim("/World/Franka/panda_rightfinger/collisions").apply_physics_materials(self.friction_material)
+
         self.world.reset()
         self.world.play()
         
         # 让机器人准备好
         for _ in range(20):
             self.world.step(render=True)
+        
+        self.articulation_controller = self.robot.get_articulation_controller()
 
         usd_help = UsdHelper()
         usd_help.load_stage(self.world.stage)
@@ -77,15 +97,30 @@ class Task:
 
         self.motion_gen, self.plan_config = init_motion_gen(robot_config, self.world_config, self.tensor_args)
 
-        self.articulation_controller = self.robot.get_articulation_controller()
-
-        # 调整夹爪的PID参数
-        kps, kds = self.articulation_controller.get_gains()
-        kps[-2:] *= 180 / np.pi
-        kds[-2:] *= 180 / np.pi
-        self.articulation_controller.set_gains(kps, kds)
+        print("Initialization complete.")
 
     def task_plan(self):
+        # # 针对partnet物体148，具备旋转关节，，位置为(0.6, 0, 0.2, 0, 0, 135)，大小为(0.4, 0.4, 0.4)
+        # pregrasp_pose = [
+        #     0.5269468797724133,
+        #     -0.013517422630286505,
+        #     0.5177520006511356,
+        #     -0.15078891027186506,
+        #     0.978497653035146,
+        #     -0.12547612047485215,
+        #     0.06372433392601977
+        # ]
+        # grasp_pose = [
+        #     0.5432017835042898,
+        #     0.014392719890486731,
+        #     0.42311161789019386,
+        #     -0.15078891027186506,
+        #     0.978497653035146,
+        #     -0.12547612047485215,
+        #     0.06372433392601977
+        # ]
+
+        # 针对partnet物体8736，具备平移关节，，位置为(0.7, 0, 0.38, 0, 0, 75)，大小为（0.4，0.4，0.4）
         pregrasp_pose = [
             0.4601010850457249,
             -0.02325492042558976,
@@ -115,19 +150,11 @@ class Task:
                 "event_params": {},
             },
             {
-                "event_type": "wait",
-                "event_params": {"steps": 3000},
-            },
-            {
                 "event_type": "move_end_effector",
                 "event_params": {
                     "target_position": np.array(pregrasp_pose[:3]),
                     "target_orientation": np.array(pregrasp_pose[3:])
                 },
-            },
-            {
-                "event_type": "print_contact_info",
-                "event_params": {},
             },
             {
                 "event_type": "wait_robot_inertia_settle",
@@ -145,10 +172,6 @@ class Task:
                 "event_params": {},
             },
             {
-                "event_type": "print_contact_info",
-                "event_params": {},
-            },
-            {
                 "event_type": "gripper_action",
                 "event_params": {"action": "close"},
             },
@@ -157,15 +180,7 @@ class Task:
                 "event_params": {},
             },
             {
-                "event_type": "print_contact_info",
-                "event_params": {},
-            },
-            {
                 "event_type": "attach_grasped_object",
-                "event_params": {},
-            },
-            {
-                "event_type": "endless_run",
                 "event_params": {},
             }
         ]

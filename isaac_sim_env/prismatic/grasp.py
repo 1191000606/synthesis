@@ -28,6 +28,7 @@ for sensor in all_sensors:
     world.scene.add(sensor)
     sensor.add_raw_contact_data_to_frame() # 没有这一行的话，sensor返回的数据字典是空的，缺少contacts这个键。
 
+# # 来自objaverse的刚性物体
 # object_dataset = "objaverse"
 # object_id = "0a814511b21942d297745cff34980ff8"
 # urdf_path = f"./data/objaverse/dataset/{object_id}/material.urdf"
@@ -35,6 +36,7 @@ for sensor in all_sensors:
 # scale = (0.2, 0.2, 0.2)
 # fix_base = False
 
+# # 来自partnet的铰接物体，具备旋转关节
 # object_dataset = "partnet"
 # object_id = "99e55a6a9ab18d31cc9c4c1909a0f80"
 # object_index = "148"
@@ -44,15 +46,7 @@ for sensor in all_sensors:
 # scale = (0.4, 0.4, 0.4)
 # fix_base = True
 
-# object_dataset = "partnet"
-# object_id = "7b98e7b25bb83413c59350d819542ec7"
-# object_index = "46981"
-# urdf_path = f"./data/partnet/dataset/{object_index}/mobility.urdf"
-# link_name = "link_2"
-# scale = (0.8, 0.8, 0.8)
-# object_initial_pose = (0.6, 0.0, 0.6, 0, 0, 0)
-# fix_base = True
-
+# # 来自partnet的铰接物体，具备平移关节
 object_dataset = "partnet"
 object_id = "6c04c2eac973936523c841f9d5051936"
 object_index = "8736"
@@ -62,7 +56,6 @@ scale = (0.4, 0.4, 0.4)
 object_initial_pose = (0.7, 0, 0.38, 0, 0, 75)
 fix_base = True
 
-# assert scale[2] == object_initial_pose[2] * 2, "物体Z轴位置必须是高度的一半"
 import_urdf(urdf_path, object_initial_pose[:3], object_initial_pose[3:], scale, fix_base)
 
 set_visuals_collision_instance(object_id)
