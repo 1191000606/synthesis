@@ -6,8 +6,8 @@ example/下面的文件都是用来演示各种功能的示例脚本。
 4. grasp.py: 针对任意形状物体进行抓取位姿估计。运行后会产生一个json文件，内容为采样的抓取点信息。所需的工具函数被写到grasp_init.py、grasp_utils.py文件中
 5. grasp_valid.py: 验证grasp.py生成的抓取位姿的有效性。可以从json文件中复制预抓取、抓取位姿到该文件中进行验证。需要grasp_init.py中的工具函数
 6. grasp_visual.py: 读取grasp.py生成的json文件，将所有抓取位姿进行可视化展示，包括物体在内。
-7. articulated_valid.py: 对铰接物体进行操作。针对某铰接物体，机械臂首先移动到某link的抓取点位处，然后闭合夹爪，然后旋转关节。铰接物体中特定link的抓取点位需要事先通过grasp.py进行生成。该文件需要articulated_utils.py和grasp_init.py中的工具函数。
-
+7. translate_valid.py: 对具备平移关节的铰接物体进行操作。针对某铰接物体，机械臂首先移动到某link的抓取点位处，然后闭合夹爪，然后平移。铰接物体中特定link的抓取点位由grasp.py进行生成。该文件需要articulated_utils.py和grasp_init.py中的工具函数。
+8. rotate_valid.py: 对具备旋转关节的铰接物体进行操作。针对某铰接物体，机械臂首先移动到某link的抓取点位处，然后闭合夹爪，然后旋转。铰接物体中特定link的抓取点位由grasp.py进行生成。该文件需要articulated_utils.py和grasp_init.py中的工具函数。
 
 8. grasp_init.py: 工具函数
 9. grasp_utils.py: 工具函数
