@@ -30,14 +30,23 @@ def parse_topology_map(urdf_path):
 
 def get_joint_info(object_id, joint_name):
     stage = omni.usd.get_context().get_stage()
-
     joint_prim = stage.GetPrimAtPath(f"/World/partnet_{object_id}/joints/{joint_name}")
-    joint = UsdPhysics.RevoluteJoint(joint_prim)
 
-    lower_degree = joint.GetLowerLimitAttr().Get()
-    upper_degree = joint.GetUpperLimitAttr().Get()
-    state_api = PhysxSchema.JointStateAPI.Get(joint_prim, "angular")
-    current_degree = state_api.GetPositionAttr().Get()   # degrees (angular)
+    if joint_prim.IsA(UsdPhysics.RevoluteJoint):
+        joint = UsdPhysics.RevoluteJoint(joint_prim)
+        state_token = "angular"
+    elif joint_prim.IsA(UsdPhysics.PrismaticJoint):
+        joint = UsdPhysics.PrismaticJoint(joint_prim)
+        state_token = "linear"
+    else:
+        assert False, "Unsupported joint type"
+
+    lower_limit = joint.GetLowerLimitAttr().Get()
+    upper_limit = joint.GetUpperLimitAttr().Get()
+
+    # 获取当前状态 (旋转是度，平移是米)
+    state_api = PhysxSchema.JointStateAPI.Get(joint_prim, state_token)
+    current_value = state_api.GetPositionAttr().Get()
 
     # 取joint在body0坐标系的位置、朝向，body1也可以，然后转化为世界坐标系下的位置、朝向
     body0_path = str(joint.GetBody0Rel().GetTargets()[0])
@@ -54,7 +63,6 @@ def get_joint_info(object_id, joint_name):
 
     # 世界坐标系下的位置、朝向、变换矩阵
     joint_matrix_in_world = joint_matrix_in_body0 * world_transform 
-
     joint_origin_in_world = np.array(joint_matrix_in_world.ExtractTranslation())
 
     axis_token = joint.GetAxisAttr().Get().upper()
@@ -66,17 +74,33 @@ def get_joint_info(object_id, joint_name):
         axis_local = Gf.Vec3d(0.0, 0.0, 1.0)
 
     joint_axis_in_world = np.array(joint_matrix_in_world.TransformDir(axis_local))
-
-    axis_length = np.linalg.norm(joint_axis_in_world) + 1e-12
-    joint_axis_in_world = joint_axis_in_world / axis_length
+    joint_axis_in_world /= (np.linalg.norm(joint_axis_in_world) + 1e-12)
 
     return {
-        "upper_limit": upper_degree,
-        "lower_limit": lower_degree,
-        "current_value": current_degree,
+        "upper_limit": upper_limit,
+        "lower_limit": lower_limit,
+        "current_value": current_value,
         "joint_origin": joint_origin_in_world,
         "joint_axis": joint_axis_in_world
     }
+
+def compute_linear_trajectory(joint_axis, ee_start_position, ee_start_orientation, translation_distance):
+    trajectory_points = []
+    
+    # 设置步长，例如每步移动 1cm
+    step_size = 0.001 if translation_distance >= 0 else -0.001
+    dist_list = list(np.arange(0, translation_distance, step_size))
+    
+    if len(dist_list) == 0 or dist_list[-1] != translation_distance:
+        dist_list.append(translation_distance)
+    
+    for d in dist_list:
+        # 新位置 = 起始位置 + 移动距离 * 轴向
+        new_position = ee_start_position + d * joint_axis
+        # 姿态保持起始姿态
+        trajectory_points.append((new_position, ee_start_orientation))
+        
+    return trajectory_points
 
 def compute_arc_trajectory(joint_origin, joint_axis, ee_start_position, ee_start_orientation, rotation_degrees):
     # 数学公式：
@@ -107,7 +131,6 @@ def compute_arc_trajectory(joint_origin, joint_axis, ee_start_position, ee_start
         degree_list.append(rotation_degrees)
     
     for angle_degree in degree_list:
-
         angle_radian = np.radians(angle_degree)
         
         # 这里的 joint_axis 必须是归一化的
@@ -143,13 +166,21 @@ def get_robot_joint_state(robot, tensor_args, motion_gen, velocity_zero=False):
 
     return cuRobo_joint_state
 
-def soft_joint_drive(object_id, joint_name):
+def set_drive_parameters(joint_prim_path, stiffness, damping, maxforce):
     stage = omni.usd.get_context().get_stage()
-    joint_prim = stage.GetPrimAtPath(f"/World/partnet_{object_id}/joints/{joint_name}")
-    drive = UsdPhysics.DriveAPI.Get(joint_prim, "angular")
-    drive.GetStiffnessAttr().Set(0)
-    drive.GetDampingAttr().Set(0.5)
-    drive.GetMaxForceAttr().Set(5)
+    joint_prim = stage.GetPrimAtPath(joint_prim_path)
+
+    if joint_prim.IsA(UsdPhysics.RevoluteJoint):
+        drive_type = "angular"
+    elif joint_prim.IsA(UsdPhysics.PrismaticJoint):
+        drive_type = "linear"
+    else:
+        assert False, "Unsupported joint type"
+
+    drive = UsdPhysics.DriveAPI.Get(joint_prim, drive_type)
+    drive.GetStiffnessAttr().Set(stiffness)
+    drive.GetDampingAttr().Set(damping)
+    drive.GetMaxForceAttr().Set(maxforce)
 
 def ik_solver_attach_object(ik_solver, robot_config, world_config, tensor_args, ee_pose, object_names):
     link_name = "attached_object"
@@ -182,3 +213,5 @@ def ik_solver_attach_object(ik_solver, robot_config, world_config, tensor_args, 
     sphere_tensor[: spheres.shape[0], :] = spheres.contiguous()
 
     ik_solver.attach_object_to_robot(surface_sphere_radius, sphere_tensor, link_name)
+
+

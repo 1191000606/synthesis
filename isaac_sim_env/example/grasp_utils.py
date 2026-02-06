@@ -25,6 +25,8 @@ def get_point_cloud_and_normals(prim_list, point_num):
         mesh = UsdGeom.Mesh(prim)
 
         face_counts = np.array(mesh.GetFaceVertexCountsAttr().Get())
+        if None in face_counts:
+            continue
         assert (face_counts == 3).all()
 
         vertices = np.array(mesh.GetPointsAttr().Get())
@@ -70,50 +72,37 @@ def get_point_cloud_and_normals(prim_list, point_num):
     return sampled_points_list, sampled_normals_list
 
 
-def generate_antipodal_grasp_poses(
-    points, 
-    normals, 
-    num_candidates, 
-    gripper_max_width=0.10, 
-    gripper_min_width=0.005, 
-    friction_cone_threshold=0.8,
-    pregrasp_distance=0.10, # 新增：预抓取距离 10cm
-):
-
+def generate_antipodal_grasp_poses(points, normals, num_candidates):
     rng = np.random.default_rng()
+    
+    max_attempts = num_candidates * 5000 # 最大循环次数防止死锁
 
-    num_points = points.shape[0]
+    gripper_max_width=0.08 # 夹爪最大宽度
+    gripper_min_width=0.001
+    friction_cone_threshold=0.8
+
+    pregrasp_distance=0.10, # 预抓取距离 10cm
+    finger_hand_distance = 0.10  # 法兰盘和手指之间的距离，根据URDF文件为10cm
+
+    tree = KDTree(points) # KDTree可以高效计算点云中某一点和其他点的距离
+    
     results = []
-    
-    # 1. 构建 KD-Tree
-    tree = KDTree(points)
-    
-    # 最大循环次数防止死锁
-    max_attempts = num_candidates * 50 
     attempts = 0
     
     while len(results) < num_candidates and attempts < max_attempts:
         attempts += 1
         
-        # 2. 随机采样第一个接触点 P1
-        idx1 = rng.integers(0, num_points)
+        idx1 = rng.integers(0, points.shape[0])
         p1 = points[idx1]
         n1 = normals[idx1]
         
-        # 3. 在 P1 附近搜索 P2
-        # 注意：这里 query_ball_point 返回的是球内 **所有** 点的索引
         nearby_indices = tree.query_ball_point(p1, gripper_max_width)
         
-        if len(nearby_indices) < 2:
+        if len(nearby_indices) == 1:
             continue
             
-        # --- 关于抽取 10 个点的解释 ---
-        # 这里的逻辑不是“抽取最近的10个”，而是“随机抽取10个邻居”。
-        # 目的：为了性能。如果球内有500个点，我们不需要两两遍历，
-        # 只要随机测几个，如果没有符合的，说明P1这块区域几何不好，不如直接换下一个P1。
-        check_limit = 10
-        if len(nearby_indices) > check_limit:
-            candidate_idx2 = rng.choice(nearby_indices, size=check_limit, replace=False)
+        if len(nearby_indices) > 10:
+            candidate_idx2 = rng.choice(nearby_indices, size=10, replace=False)
         else:
             candidate_idx2 = nearby_indices
         
@@ -124,26 +113,24 @@ def generate_antipodal_grasp_poses(
             p2 = points[idx2]
             n2 = normals[idx2]
             
-            # --- 4. 物理几何筛选 ---
-            
-            # 4.1 距离筛选
+            # 距离筛选
             grasp_width = np.linalg.norm(p2 - p1)
             if grasp_width < gripper_min_width or grasp_width > gripper_max_width:
                 continue
                 
             grasp_axis = (p2 - p1) / grasp_width
             
-            # 4.2 法线对立性筛选
+            # 法线对立性筛选
             if np.dot(n1, n2) > -0.5:
                 continue
                 
-            # 4.3 摩擦锥筛选
+            # 摩擦锥筛选
             if np.abs(np.dot(n1, grasp_axis)) < friction_cone_threshold:
                 continue
             if np.abs(np.dot(n2, grasp_axis)) < friction_cone_threshold:
                 continue
             
-            # --- 5. 生成位姿数据 ---
+            # 生成位姿数据
             # 计算 4x4 矩阵
             pose_mat = compute_frame_from_contact_pair(p1, p2, n1, n2)
             
@@ -155,16 +142,14 @@ def generate_antipodal_grasp_poses(
             grasp_orn = r.as_quat(scalar_first=True)
             
             # 计算 Pre-grasp
-            # Pre-grasp 是沿着 Z 轴 (接近方向) 后退
-            # pose_mat[:3, 2] 是 Z 轴向量
+            # Pre-grasp 是沿着 Z 轴 (接近方向) 后退, pose_mat[:3, 2] 是 Z 轴向量
             z_axis = pose_mat[:3, 2]
             pregrasp_pos = grasp_pos - (z_axis * pregrasp_distance)
             pregrasp_orn = grasp_orn.copy() # 姿态保持一致
 
             # 调整抓取和预抓取位置，考虑手指到手腕的偏移
-            FINGER_HAND_DISTANCE = 0.10  # panda hand和right gripper的距离，根据URDF文件为10cm
-            grasp_pos = grasp_pos - (z_axis * FINGER_HAND_DISTANCE)
-            pregrasp_pos = pregrasp_pos - (z_axis * FINGER_HAND_DISTANCE)
+            grasp_pos = grasp_pos - (z_axis * finger_hand_distance)
+            pregrasp_pos = pregrasp_pos - (z_axis * finger_hand_distance)
 
             grasp_pose = (grasp_pos, grasp_orn)
             pregrasp_pose = (pregrasp_pos, pregrasp_orn)

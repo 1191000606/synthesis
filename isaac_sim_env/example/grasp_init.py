@@ -123,6 +123,7 @@ def init_sensor():
             min_threshold=0
         ))
 
+    # franka的link从0开始，[0, 7]均为实体的link，link0是底座，一般不加传感器。link0~link7之间有7个关节。link8是法兰盘上虚拟的link
     arm_sensor_paths = [f"/World/Franka/panda_link{i}" for i in range(1, 8)]
     for sensor_path in arm_sensor_paths:
         arm_sensors.append(ContactSensor(
