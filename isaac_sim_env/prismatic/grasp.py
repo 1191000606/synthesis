@@ -46,7 +46,7 @@ for sensor in all_sensors:
 # scale = (0.4, 0.4, 0.4)
 # fix_base = True
 
-# # 来自partnet的铰接物体，具备平移关节
+# 来自partnet的铰接物体，具备平移关节
 object_dataset = "partnet"
 object_id = "6c04c2eac973936523c841f9d5051936"
 object_index = "8736"
@@ -77,7 +77,7 @@ ik_solver = init_ik_solver(robot_config, world_config, tensor_args)
 stage = omni.usd.get_context().get_stage()
 
 if object_dataset == "objaverse":
-    prim_path = f"/World/objaverse_{object_id}/baseLink_{object_id}/visuals/material_normalized/mesh"
+    prim_path = f"/World/objaverse_{object_id}/baseLink_{object_id}/collisions/material_normalized_vhacd/mesh"
     prim = stage.GetPrimAtPath(prim_path)
     
     point_cloud, normals = get_point_cloud_and_normals([prim], 4096)
