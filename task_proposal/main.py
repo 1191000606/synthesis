@@ -111,7 +111,7 @@ for task_name, task_description, additional_object, link, joint in zip(*task_att
     # Todo：这里可能后续会有冲突，比如高并发的时候，到时候可以加上一个随机数或者UUID
     time_string = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M-%S') 
     
-    save_folder = f"./data/task_config/{object_category}_{object_id}_{time_string}"
+    save_folder = f"./task_config/{object_category}_{object_id}_{time_string}"
 
     os.makedirs(save_folder, exist_ok=True)
 
